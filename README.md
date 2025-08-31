@@ -1,4 +1,4 @@
-#Clinic Management System
+# Clinic Management System
 
 The **Clinic Management System** is a 3-tier application designed to handle clinical operations—patients, appointments, treatments, billing, and reports. It’s built with a clean **Presentation → Business Logic → Data Access** architecture for modularity, maintainability, and scalability.  
 
