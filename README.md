@@ -41,9 +41,10 @@ The application follows a Three-Tier Architecture, comprising:
 
 4. Restore NuGet packages  
    Go to Tools > NuGet Package Manager > Manage NuGet Packages for Solution and restore missing packages.
-5. Build and run  
+5. Edit connection string
+6. Build and run  
    Use Build > Build Solution and Debug > Start Debugging to launch the application.
-6. Use the following test credentials :
+7. Use the following test credentials :
 
     1. Username : admin.
     2. Password : admin.
