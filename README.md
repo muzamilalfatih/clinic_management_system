@@ -1,5 +1,4 @@
-# Driving & Vehicle License Department (DVLD) System
-
+#Clinic Management System
 The **Clinic Management System** is a 3-tier application designed to handle clinical operations—patients, appointments, treatments, billing, and reports. It’s built with a clean **Presentation → Business Logic → Data Access** architecture for modularity, maintainability, and scalability.  
 
 the **presentation layer here is an API application** that provides endpoints for integration with clients (web, desktop, or mobile).
