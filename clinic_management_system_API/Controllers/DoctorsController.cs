@@ -93,7 +93,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<DoctorDTO>> UpdateDoctor([FromBody] UpdateDoctorRequestDTO updateDoctorRequestDTO)
         {
-            int? currentUserId = _currentUserSevice.userId;
+            int? currentUserId = _currentUserSevice.UserId;
                if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
@@ -153,7 +153,7 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<List<AvailabilityInfoDTO>>> GetDoctorAvailabilities()
         {
 
-            int? userId = _currentUserSevice.userId;
+            int? userId = _currentUserSevice.UserId;
             if (userId == null)
             {
                 return Unauthorized("Missing user ID in token");
@@ -178,7 +178,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<FullCreateDoctorResponseDTO>> AddAvailability([FromBody] List<CreateAvailabilityRequestDTO> createAvailabilitiesDTO)
         {
-            int? userId = _currentUserSevice.userId;
+            int? userId = _currentUserSevice.UserId;
             if (userId == null)
             {
                 return Unauthorized("Missing user ID in token");

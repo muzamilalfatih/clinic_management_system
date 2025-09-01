@@ -83,7 +83,7 @@ namespace clinic_management_system_Bussiness
 
             if (!updateResult.success)
                 return updateResult;
-            int? currentUserId = _currentUserSevice.userId;
+            int? currentUserId = _currentUserSevice.UserId;
             if (currentUserId == null)
                 return updateResult;
 

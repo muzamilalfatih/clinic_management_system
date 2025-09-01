@@ -117,7 +117,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<RolesForUserDTO>>> GetUserRoles(int userId)
         {
-            int? currentUserId = _currentUserSevice.userId;
+            int? currentUserId = _currentUserSevice.UserId;
             if (currentUserId == null)
                 Unauthorized("Id missing in the token!");
             if ((currentUserId) == (int)Roles.Admin && (Roles)userId == Roles.Admin)
@@ -207,7 +207,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<UserDTO>> UpdateUser(int id, [FromBody] UpdateUserDTO updateUserDTO)
         {
-            int? currentUserId = _currentUserSevice.userId;
+            int? currentUserId = _currentUserSevice.UserId;
                 
             if (currentUserId == null) 
                 return Unauthorized("Missing user ID in token");
@@ -229,7 +229,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<UserDTO>> UpdateUser([FromBody] UpdateUserRequestDTO updateUserRequestDTO)
         {
-            int? currentUserId = _currentUserSevice.userId;
+            int? currentUserId = _currentUserSevice.UserId;
 
             if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");

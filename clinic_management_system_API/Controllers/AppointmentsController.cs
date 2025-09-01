@@ -1,12 +1,15 @@
+using clinic_management_system_Bussiness;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
-using clinic_management_system_Bussiness;
+using SharedClasses.DTOS.Appointment;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/appointments")]
-     [ApiController]
+    [ApiController]
+    [Authorize]
     public class AppointmentsController : ControllerBase
-     {
+    {
 
         private readonly AppointmentService _service;
 
@@ -15,54 +18,64 @@ namespace clinic_management_system_API.Controllers
             _service = service;
         }
 
+        //[Authorize(Roles = "Admin,SuperAmdmin,")]
         [HttpGet("{id}", Name = "GetAppointmentByID")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AppointmentDTO>> GetAppointmentByID(int id)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<AppointmentInfoDTO>> GetAppointmentByID(int id)
         {
-            Result<AppointmentDTO> result = await _service.FindAsync(id);
+            Result<AppointmentInfoDTO> result = await _service.FindAsync(id);
             if (result.success)
             {
                 return Ok(result.data);
             }
             return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
         }
-
-        [HttpPost(Name = "AddAppointment")]
+        [Authorize(Roles = "Admin,SuperAdmin,Receptionist,Patient")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AppointmentDTO>> AddAppointment(AppointmentDTO appointmentDTO)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<AppointmentInfoDTO>> AddAppointment(AddNewAppointmentDTO addNewAppointmentDTO)
         {
-            Result<int> result = await _service._AddNewAppointmentAsync(appointmentDTO);
+            Result<int> result = await _service.AddNewAppointmentAsync(addNewAppointmentDTO);
             if (result.success)
             {
-                return CreatedAtRoute("GetAppointmentByID", new { id = result.data }, appointmentDTO);
+                return CreatedAtRoute("GetAppointmentByID", new { id = result.data }, addNewAppointmentDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.errorCode, result.message);
         }
 
-        [HttpPut("{id}", Name = "UpdateAppointment")]
+        [Authorize(Roles = "Admin,SuperAmdmin,Receptionist,Patient")]
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<AppointmentDTO>> UpdateAppointment(int id, [FromBody] AppointmentDTO appointmentDTO)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<UpdateAppointmentDTO>> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateAppointmentDTO)
         {
-            Result<int> result = await _service._UpdateAppointmentAsync(appointmentDTO);
+            Result<int> result = await _service.UpdateAppointmentAsync(updateAppointmentDTO);
 
             if (result.success)
-                return Ok(appointmentDTO);
-           return StatusCode(result.errorCode, result.message);
+                return Ok(updateAppointmentDTO);
+            return StatusCode(result.errorCode, result.message);
         }
 
-        [HttpDelete("{id}", Name = "DeleteAppointment")]
+        [HttpDelete]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> DeleteAppointment(int id)
         {
             Result<bool> result = await _service.DeleteAppointmentAsync(id);
@@ -73,6 +86,55 @@ namespace clinic_management_system_API.Controllers
             return StatusCode(result.errorCode, result.message);
         }
 
+        [HttpPost("cancel")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> CancelAppointment(int id)
+        {
+            Result<bool> result = await _service.Cancel(id);
+            if (result.success)
+            {
+                return Ok($"Appointment with ID {id} has been cancel.");
+            }
+            return StatusCode(result.errorCode, result.message);
+        }
 
-     }
+        [HttpPost("reschedule")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> Reschedule([FromBody] RescheduleDTO rescheduleDTO)
+        {
+            Result<bool> result = await _service.Reschedule(rescheduleDTO);
+            if (result.success)
+            {
+                return Ok($"Appointment with ID {rescheduleDTO.Id} has been rescheduled.");
+            }
+            return StatusCode(result.errorCode, result.message);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<List<AppointmentInfoDTO>>> GetAppointments([FromQuery] AppointmentFilterDTO filter)
+        {
+            Result<List<AppointmentInfoDTO>> result = await _service.GetAllAppointments(filter);
+            if (result.success)
+            {
+                return Ok(result.data);
+            }
+            return StatusCode(result.errorCode, result.message);
+        }
+    }
 }

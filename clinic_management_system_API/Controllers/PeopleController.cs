@@ -46,7 +46,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PersonDTO>> UpdatePerson( [FromBody] UpdatePersonRequestDTO updatePersonRequestDTO)
         {
-            int? CurrentUserId = _currentUserSevice.userId;
+            int? CurrentUserId = _currentUserSevice.UserId;
             if (CurrentUserId == null)
                 return Unauthorized("Missing user ID in token");
 

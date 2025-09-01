@@ -36,7 +36,7 @@ namespace clinic_management_system_DataAccess
                                      reader.GetByte(reader.GetOrdinal("PreviousExperienceYears")),
                                      reader.GetDateTime(reader.GetOrdinal("JoinDate")),
                                      reader.GetString(reader.GetOrdinal("Bio")),
-                                     reader.GetDecimal(reader.GetOrdinal("ConsulationFee"))
+                                     reader.GetDecimal(reader.GetOrdinal("ConsultationFee"))
                                  );
                                 return new Result<DoctorDTO>(true, "Doctor found successfully", doctorDTO);
                             }

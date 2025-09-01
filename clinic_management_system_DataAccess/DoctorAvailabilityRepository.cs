@@ -22,17 +22,17 @@ namespace clinic_management_system_DataAccess
         {
             _connectionString = options.Value.DefaultConnection;
         }
-        public async Task<Result<List<AvailabilityInfoDTO>>> GetAllDoctorAvailabiltiesAsync(int userId)
+        public async Task<Result<List<AvailabilityInfoDTO>>> GetAllDoctorAvailabiltiesAsync(int doctorId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 string query = @"SELECT DoctorAvailabilities.Id, DoctorAvailabilities.DayOfWeek, DoctorAvailabilities.StartTime, DoctorAvailabilities.EndTime
 FROM     DoctorAvailabilities INNER JOIN
                   Doctors ON DoctorAvailabilities.DoctorId = Doctors.Id
-WHERE  (Doctors.UserId = @UserID)";
+WHERE  (Doctors.Id = @Id)";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("UserId", userId);
+                    command.Parameters.AddWithValue("@Id", doctorId);
                     List<AvailabilityInfoDTO> availabilitySlots = new List<AvailabilityInfoDTO>();
                     try
                     {
