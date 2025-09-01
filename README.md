@@ -41,13 +41,13 @@ The application follows a Three-Tier Architecture, comprising:
 
 4. Restore NuGet packages  
    Go to Tools > NuGet Package Manager > Manage NuGet Packages for Solution and restore missing packages.
-5. Edit connection string
+5. Updte connection string
 6. Build and run  
    Use Build > Build Solution and Debug > Start Debugging to launch the application.
 7. Use the following test credentials :
 
-    1. Username : admin.
-    2. Password : admin.
+    1. Email : superadmin@superadmin.com.
+    2. Password : superadmin.
 
 ## Features
 
@@ -58,6 +58,7 @@ The application follows a Three-Tier Architecture, comprising:
 - Billing & Payments – Manage invoices and receipts
 - Generate operational summaries and statistics
 - Can be consumed by web, desktop, or mobile clients
+- Fast lockup data retrieval
 
 ## Contributing
 
