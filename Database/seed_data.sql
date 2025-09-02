@@ -7,7 +7,14 @@ INSERT INTO Roles (Name) VALUES
 ('LabTechnical'),
 ('Receptionist'),
 ('Patient');
+---------------
+-- Insert payment methods 
 
+INSERT INTO PaymentMethods (name)
+VALUES
+    ('Cash'),
+    ('Bank Transfer'),
+    ('Credit Card');
 --------------------
 -- Inser the intial user for the system
 
