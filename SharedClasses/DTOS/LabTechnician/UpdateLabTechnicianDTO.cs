@@ -8,11 +8,11 @@ namespace SharedClasses.DTOS.LabTechnician
 {
     public class UpdateLabTechnicianDTO : BaseLabTechnicianDTO
     {
-        public UpdateLabTechnicianDTO(int userId, UpdateLabTechnicianRequestDTO updateLabTechnicianRequestDTO)
-            : base(updateLabTechnicianRequestDTO.DepartmentId, updateLabTechnicianRequestDTO.PrevExperienceYears, updateLabTechnicianRequestDTO.JoinDate)
+        public UpdateLabTechnicianDTO(int id, int userId, int departmentId, byte  prevExperienceYears, DateTime joinDate)
+            : base(departmentId, prevExperienceYears, joinDate)
         {
-            UserId = userId;
+            Id = id;
         }
-        public int UserId { get; set; }
+        public int Id { get; set; }
     }
 }

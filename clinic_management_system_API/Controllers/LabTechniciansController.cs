@@ -59,13 +59,11 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UpdateDoctorDTO>> UpdateLabTechnician(int id, [FromBody] UpdateLabTechnicianRequestDTO updateLabTechnicianRequestDTO)
+        public async Task<ActionResult<UpdateDoctorDTO>> UpdateLabTechnician(int id, [FromBody] UpdateLabTechnicianDTO updateDTO)
         {
-            UpdateLabTechnicianDTO updateLabTechnicianDTO = new UpdateLabTechnicianDTO(id, updateLabTechnicianRequestDTO);
-
-            Result<bool> result = await _service.UpdateLabTechnicianAsync(updateLabTechnicianDTO);
+            Result<bool> result = await _service.UpdateLabTechnicianAsync(updateDTO);
             if (result.success)
-                return Ok(updateLabTechnicianDTO);
+                return Ok(updateDTO);
 
            return StatusCode(result.errorCode, result.message);
         }
@@ -76,17 +74,15 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UpdateDoctorDTO>> UpdateLabTechnician([FromBody] UpdateLabTechnicianRequestDTO updateLabTechnicianRequestDTO)
+        public async Task<ActionResult<UpdateDoctorDTO>> UpdateLabTechnician([FromBody] UpdateLabTechnicianDTO updateDTO)
         {
             int? currentUserId = _currentUserSevice.UserId;
             if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
-            UpdateLabTechnicianDTO updateLabTechnicianDTO = new UpdateLabTechnicianDTO((int) currentUserId, updateLabTechnicianRequestDTO);
-
-            Result<bool> result = await _service.UpdateLabTechnicianAsync(updateLabTechnicianDTO);
+            Result<bool> result = await _service.UpdateLabTechnicianAsync((int) currentUserId, updateDTO);
             if (result.success)
-                return Ok(updateLabTechnicianDTO);
+                return Ok(updateDTO);
 
             return StatusCode(result.errorCode, result.message);
         }

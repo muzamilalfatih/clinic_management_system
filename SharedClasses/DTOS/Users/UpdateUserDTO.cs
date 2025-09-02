@@ -8,13 +8,13 @@ namespace SharedClasses.DTOS.Users
 {
     public class UpdateUserDTO : BaseUserDTO
     {
-        public UpdateUserDTO(int id, UpdateUserRequestDTO updateUserRequestDTO)
-           :base(updateUserRequestDTO.email, updateUserRequestDTO.userName)
+        public UpdateUserDTO(int id, string email, string userName, string password)
+           :base(email, userName)
         {
-            this.id = id;
-            this.password = updateUserRequestDTO.password;
+            Id = id;
+            Password = password;
         }
-        public int id { get; set; }
-        public string password { get; set; }
+        public int Id { get; set; }
+        public string Password { get; set; }
     }
 }

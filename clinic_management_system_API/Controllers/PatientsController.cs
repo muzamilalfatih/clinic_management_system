@@ -74,33 +74,30 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PatientDTO>> UpdatePatient(int id, [FromBody] UpdatePatientResquestDTO updatePatientResquestDTO)
+        public async Task<ActionResult<PatientDTO>> UpdatePatient(int id, [FromBody] UpdatePatientDTO UpdateDTO)
         {
 
-            UpdatePatientDTO updatePatientDTO = new UpdatePatientDTO(id, updatePatientResquestDTO);
-            Result<bool> result = await _service.UpdatePatientAsync(updatePatientDTO);
+            Result<bool> result = await _service.UpdatePatientAsync(UpdateDTO);
             if (result.success)
-                return Ok(updatePatientResquestDTO);
+                return Ok(UpdateDTO);
             return StatusCode(result.errorCode, result.message);
         }
 
-        [Authorize(Roles = "Patient")]
-        [HttpPut("profile")]
+        [Authorize(Roles = "Patient,SuperAdmin,Admin,Receptionist")]
+        [HttpPut("me")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PatientDTO>> UpdatePatient( [FromBody] UpdatePatientResquestDTO updatePatientResquestDTO)
+        public async Task<ActionResult<PatientDTO>> UpdatePatient( [FromBody] UpdatePatientDTO updateDTO)
         {
             int? currentUserId = _currentUserService.UserId;
             if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
-            UpdatePatientDTO updatePatientDTO = new UpdatePatientDTO((int)currentUserId, updatePatientResquestDTO);
-
-            Result<bool> result = await _service.UpdatePatientAsync(updatePatientDTO);
+            Result<bool> result = await _service.UpdatePatientAsync((int) currentUserId,  updateDTO);
             if (result.success)
-                return Ok(updatePatientResquestDTO);
+                return Ok(updateDTO);
             return StatusCode(result.errorCode, result.message);
         }
 

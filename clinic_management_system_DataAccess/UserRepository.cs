@@ -216,10 +216,10 @@ select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
 
-                    command.Parameters.AddWithValue("@Id", updateUserDTO.id);
+                    command.Parameters.AddWithValue("@Id", updateUserDTO.Id);
                     command.Parameters.AddWithValue("@Email", updateUserDTO.email);
                     command.Parameters.AddWithValue("@UserName", updateUserDTO.userName);
-                    command.Parameters.AddWithValue("@Password", updateUserDTO.password);
+                    command.Parameters.AddWithValue("@Password", updateUserDTO.Password);
 
 
                     try

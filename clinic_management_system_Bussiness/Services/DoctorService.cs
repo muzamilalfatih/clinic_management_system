@@ -77,30 +77,22 @@ namespace clinic_management_system_Bussiness
                 }
             }
         }
-        public async Task<Result<bool>> UpdateDoctor(UpdateDoctorDTO updateDoctorDTO)
+        public async Task<Result<bool>> UpdateDoctor(int userId, UpdateDoctorDTO updateDoctorDTO)
         {
-            Result<bool> updateResult = await _repo.UpdateDoctorAsync(updateDoctorDTO);
+            Result<int> getIdResult = await _repo.GetIdAsync(userId);
 
-            if (!updateResult.success)
-                return updateResult;
-            int? currentUserId = _currentUserSevice.UserId;
-            if (currentUserId == null)
-                return updateResult;
+            if (!getIdResult.success)
+                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
 
-            Result<UpdateDoctorDTO> oldDataResult = await _repo.GetOldDataAsync(updateDoctorDTO.userId);
+            updateDoctorDTO.Id = getIdResult.data;
 
-            if (!oldDataResult.success)
-                return updateResult;
-
-            string oldData = JsonSerializer.Serialize(oldDataResult.data);
-            string newData = JsonSerializer.Serialize(updateDoctorDTO);
-            CreateAuditLogDTO auditLogDTO = new CreateAuditLogDTO("Doctor", updateDoctorDTO.userId, "Update", (int)currentUserId, oldData, newData);
-
-            await _logger.log(auditLogDTO);
-
-            return updateResult;
-
+            return await _repo.UpdateDoctorAsync(updateDoctorDTO);
         }
+        public async Task<Result<bool>> UpdateDoctor( UpdateDoctorDTO updateDoctorDTO)
+        {
+            return await _repo.UpdateDoctorAsync(updateDoctorDTO);
+        }
+
         private static Result<int> CreateFailResponse(string message, int errorCode)
         {
             return new Result<int>(false, message, -1, errorCode);
@@ -119,7 +111,7 @@ namespace clinic_management_system_Bussiness
         }
         public async Task<Result<int>> GetDoctorIdAsync(int userId)
         {
-            return await _repo.GetDoctorIdAsync(userId);
+            return await _repo.GetIdAsync(userId);
         }
         public async Task<Result<decimal>> GetConsultationFee(int id)
         {

@@ -150,11 +150,11 @@ SET
     Bio = @Bio,
     ConsultationFee = @ConsultationFees
 
-WHERE UserId = @UserId;
+WHERE Id = @Id;
 select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@UserId", updateDoctorDTO.userId);
+                    command.Parameters.AddWithValue("@Id", updateDoctorDTO.Id);
                     command.Parameters.AddWithValue("@SpecializationId", updateDoctorDTO.specializationId);
                     command.Parameters.AddWithValue("@PreviousExperienceYears", updateDoctorDTO.prevExperienceYears);
                     command.Parameters.AddWithValue("@JoinDate", updateDoctorDTO.joinDate);
@@ -348,7 +348,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                 }
             }
         }
-        public async Task<Result<int>> GetDoctorIdAsync(int userId)
+        public async Task<Result<int>> GetIdAsync(int userId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {

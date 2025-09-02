@@ -8,11 +8,11 @@ namespace SharedClasses.DTOS.Patients
 {
     public class UpdatePatientDTO : BasePatientDTO
     {
-        public UpdatePatientDTO(int userId, UpdatePatientResquestDTO updatePatientResquestDTO) 
-            :base(updatePatientResquestDTO.medicalHistory,updatePatientResquestDTO.allergies)
+        public UpdatePatientDTO(int id, string medicalHistory, string allergies) 
+            :base(medicalHistory, allergies)
         {
-            this.userId = userId;
+            Id = id;
         }
-        public int userId { get; set; }
+        public int Id { get; set; }
     }
 }

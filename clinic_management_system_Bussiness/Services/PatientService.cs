@@ -77,9 +77,19 @@ namespace clinic_management_system_Bussiness
             }
         }
 
-        public async Task<Result<bool>> UpdatePatientAsync(UpdatePatientDTO updatePatientDTO)
+        public async Task<Result<bool>> UpdatePatientAsync(UpdatePatientDTO updateDTO)
         {
-            return await _repo.UpdatePatientAsync(updatePatientDTO);
+
+            return await _repo.UpdatePatientAsync(updateDTO);
+        }
+        public async Task<Result<bool>> UpdatePatientAsync(int userId, UpdatePatientDTO updateDTO)
+        {
+            Result<int> getIdResult = await _repo.GetIdAsync(userId);
+            if (!getIdResult.success)
+                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
+            updateDTO.Id = getIdResult.data;
+
+            return await _repo.UpdatePatientAsync(updateDTO);
         }
 
         public async Task<Result<bool>> DeletePatientAsync(int id)

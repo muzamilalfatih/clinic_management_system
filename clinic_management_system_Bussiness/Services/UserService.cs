@@ -127,7 +127,7 @@ namespace clinic_management_system_Bussiness
         }
         public async Task<Result<bool>> UpdateUserAsync(UpdateUserDTO updateUserDTO)
         {
-            updateUserDTO.password = _passwordSerivce.HashPaword(updateUserDTO.password);
+            updateUserDTO.Password = _passwordSerivce.HashPaword(updateUserDTO.Password);
             return await _repo.UpdateUserAsync(updateUserDTO);
         }
         public async Task<Result<bool>> DeleteUserAsync(int id)

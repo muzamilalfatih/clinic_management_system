@@ -20,15 +20,15 @@ namespace clinic_management_system_Bussiness.Services
             _userService = userService;
         }
 
-        public async Task<Result<bool>> UpdatePersonAsync(int userId, UpdatePersonRequestDTO updatePersonRequestDTO)
+        public async Task<Result<bool>> UpdatePersonAsync(int userId, UpdatePersonDTO updateDTO)
         {
             Result<int> getIdResult = await _userService.GetPersonIdAsync(userId);
             if (!getIdResult.success)
                 return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
 
-            UpdatePersonDTO updatePersonDTO = new UpdatePersonDTO(getIdResult.data, updatePersonRequestDTO);
+            updateDTO.id = getIdResult.data;
 
-            return await _personService.UpdatePersonAsync(updatePersonDTO);  
+            return await _personService.UpdatePersonAsync(updateDTO);  
         }
     }
 }

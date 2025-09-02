@@ -8,8 +8,8 @@ namespace SharedClasses.DTOS.People
 {
     public class UpdatePersonDTO : BasePersonDTO
     {
-        public UpdatePersonDTO(int id, UpdatePersonRequestDTO updatePersonRequestDTO)
-            : base(updatePersonRequestDTO.firstName, updatePersonRequestDTO.secondName, updatePersonRequestDTO.thirdName, updatePersonRequestDTO.lastName, updatePersonRequestDTO.gender, updatePersonRequestDTO.phone, updatePersonRequestDTO.address)
+        public UpdatePersonDTO(int id, string firstName, string secondName, string thirdName, string lastName, enGender gender, string phone, string address)
+            : base(firstName, secondName, thirdName, lastName, gender, phone, address)
         {
             this.id = id;
         }

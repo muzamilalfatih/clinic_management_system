@@ -142,11 +142,11 @@ UPDATE Patients
 SET 
     MedicalHistroy = @MedicalHistroy,
     Allergies = @Allergies
-WHERE UserId = @UserId;
+WHERE Id = @Id;
 select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@UserId", updatePatientDTO.userId);
+                    command.Parameters.AddWithValue("@Id", updatePatientDTO.Id);
                     command.Parameters.AddWithValue("@MedicalHistroy", updatePatientDTO.medicalHistory);
                     command.Parameters.AddWithValue("@Allergies", updatePatientDTO.allergies);
 
@@ -205,8 +205,39 @@ select @@ROWCOUNT";
                 }
             }
         }
-      
+        public async Task<Result<int>> GetIdAsync(int userId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"
+select Id from Patients
+where UserId = @UserId";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object result = await command.ExecuteScalarAsync();
+                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<int>(true, "Doctor id retrieved successfully.", id);
+                        }
+                        else
+                        {
+                            return new Result<int>(false, "User not found.", -1, 404);
+                        }
 
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                    }
 
+                }
+            }
+
+        }
     }
 }

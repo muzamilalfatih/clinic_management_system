@@ -91,20 +91,17 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<DoctorDTO>> UpdateDoctor([FromBody] UpdateDoctorRequestDTO updateDoctorRequestDTO)
+        public async Task<ActionResult<DoctorDTO>> UpdateDoctor([FromBody] UpdateDoctorDTO updateDTO)
         {
             int? currentUserId = _currentUserSevice.UserId;
                if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
-
-            UpdateDoctorDTO updateDoctorDTO = new UpdateDoctorDTO((int)currentUserId, updateDoctorRequestDTO);
-
-            Result<bool> result = await _service.UpdateDoctor(updateDoctorDTO);
+            Result<bool> result = await _service.UpdateDoctor((int)currentUserId, updateDTO);
 
             if (!result.success)
                 return StatusCode(result.errorCode, result.message);
-            return Ok(result.message);
+            return Ok(updateDTO);
         }
 
         [Authorize(Roles = "Admin")]
@@ -115,16 +112,13 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UpdateDoctorDTO>> UpdateDoctor(int id , [FromBody] UpdateDoctorRequestDTO updateDoctorRequestDTO)
-        {
-           
-            UpdateDoctorDTO updateDoctorDTO = new UpdateDoctorDTO(id, updateDoctorRequestDTO);
-
-            Result<bool> result = await _service.UpdateDoctor(updateDoctorDTO);
+        public async Task<ActionResult<UpdateDoctorDTO>> UpdateDoctor(int id , [FromBody] UpdateDoctorDTO update)
+        {   
+            Result<bool> result = await _service.UpdateDoctor(update);
 
             if (!result.success)
                 return StatusCode(result.errorCode, result.message);
-            return Ok(updateDoctorDTO);
+            return Ok(update);
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -204,12 +198,10 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<DoctorDTO>> UpdateDoctorAvailability(int id, [FromBody] UpdateAvailabilityRequestDTO updateAvailabilityRequestDTO)
+        public async Task<ActionResult<DoctorDTO>> UpdateDoctorAvailability(int id, [FromBody] UpdateDoctorAvialbilityDTO update)
         {
 
-            UpdateDoctorAvialbilityDTO updateDoctorAvialbilityDTO = new UpdateDoctorAvialbilityDTO(id, updateAvailabilityRequestDTO);   
-
-            Result<bool> result = await _availabilityService.UpdateAvailabilityAsync(updateDoctorAvialbilityDTO);
+            Result<bool> result = await _availabilityService.UpdateAvailabilityAsync(update);
 
             if (!result.success)
                 return StatusCode(result.errorCode, result.message);

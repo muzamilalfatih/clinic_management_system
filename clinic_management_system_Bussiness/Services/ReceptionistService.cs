@@ -82,10 +82,20 @@ namespace clinic_management_system_Bussiness
 
             }
         }
+        public async Task<Result<bool>> UpdateReceptionist(int userId, UpdateReceptionistDTO updateReceptionistDTO)
+        {
+            Result<int> getIdResult = await _repo.GetIdAsync(userId);
+            if (!getIdResult.success)
+                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
+
+            updateReceptionistDTO.Id = getIdResult.data;
+
+            return await _repo.UpdateReceptionistAsync(updateReceptionistDTO);
+        }
         public async Task<Result<bool>> UpdateReceptionist(UpdateReceptionistDTO updateReceptionistDTO)
         {
-            return await _repo.UpdateReceptionistAsync(updateReceptionistDTO);
 
+            return await _repo.UpdateReceptionistAsync(updateReceptionistDTO);
         }
         private static Result<int> CreateFailResponse(string message, int errorCode)
         {
@@ -95,5 +105,6 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.DeleteReceptionistAsync(id);
         }
+
     }
 }

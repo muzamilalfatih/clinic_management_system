@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace SharedClasses.DTOS.Receptionists
 {
-    public class UpdateReceptionistDTO :BaseReceptionistDTO
+    public class UpdateReceptionistDTO : BaseReceptionistDTO
     {
-        public UpdateReceptionistDTO(int userId, UpdateReceptionistRequestDTO updateReceptionistRequestDTO)
-            :base( updateReceptionistRequestDTO.ShiftTypeId, updateReceptionistRequestDTO.HireDate)
+        public UpdateReceptionistDTO(int id, int shiftTypeId, DateTime hireDate)
+            : base(shiftTypeId, hireDate)
         {
-            
-            UserId = userId;
+            Id = id;
         }
-        public int UserId {  get; set; }
+        public int Id { get; set; }
     }
 }

@@ -8,8 +8,8 @@ namespace SharedClasses.DTOS.DoctorAvailability
 {
     public class UpdateDoctorAvialbilityDTO : AvailabilityBaseDTO
     { 
-        public UpdateDoctorAvialbilityDTO(int id, UpdateAvailabilityRequestDTO updateRequest)
-            :base(updateRequest.DayOfWeek, updateRequest.StartTime,updateRequest.EndTime)
+        public UpdateDoctorAvialbilityDTO(int id, DayOfWeek dayOfWeek, TimeOnly startTime, TimeOnly endTime)
+            :base(dayOfWeek, startTime, endTime)
         {
             Id = id;
         }

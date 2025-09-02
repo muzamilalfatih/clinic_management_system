@@ -227,18 +227,18 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDTO>> UpdateUser([FromBody] UpdateUserRequestDTO updateUserRequestDTO)
+        public async Task<ActionResult<UserDTO>> UpdateUser([FromBody] UpdateUserDTO updateDTO)
         {
             int? currentUserId = _currentUserSevice.UserId;
 
             if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
-            UpdateUserDTO updateUserDTO = new UpdateUserDTO((int)currentUserId, updateUserRequestDTO);
+            updateDTO.Id = (int)currentUserId;
 
-            Result<bool> result = await _service.UpdateUserAsync(updateUserDTO);
+            Result<bool> result = await _service.UpdateUserAsync(updateDTO);
             if (result.success)
-                return Ok(updateUserRequestDTO);
+                return Ok(updateDTO);
             return StatusCode(result.errorCode, result.message);
         }
 

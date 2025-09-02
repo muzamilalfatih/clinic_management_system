@@ -44,16 +44,16 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PersonDTO>> UpdatePerson( [FromBody] UpdatePersonRequestDTO updatePersonRequestDTO)
+        public async Task<ActionResult<PersonDTO>> UpdatePerson( [FromBody] UpdatePersonDTO updateDTO)
         {
             int? CurrentUserId = _currentUserSevice.UserId;
             if (CurrentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
 
-            Result<bool> result = await _personFacadeService.UpdatePersonAsync((int)CurrentUserId, updatePersonRequestDTO);
+            Result<bool> result = await _personFacadeService.UpdatePersonAsync((int)CurrentUserId, updateDTO);
             if (result.success)
-                return Ok(updatePersonRequestDTO);
+                return Ok(updateDTO);
            return StatusCode(result.errorCode, result.message);
         }
 
@@ -65,14 +65,11 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PersonDTO>> UpdatePerson(int id, [FromBody] UpdatePersonRequestDTO updatePersonRequestDTO)
+        public async Task<ActionResult<PersonDTO>> UpdatePerson(int id, [FromBody] UpdatePersonDTO updateDTO)
         {
-
-            UpdatePersonDTO updatePersonDTO = new UpdatePersonDTO(id, updatePersonRequestDTO);
-
-            Result<bool> result = await _service.UpdatePersonAsync(updatePersonDTO);
+            Result<bool> result = await _service.UpdatePersonAsync(updateDTO);
             if (result.success)
-                return Ok(updatePersonRequestDTO);
+                return Ok(updateDTO);
             return StatusCode(result.errorCode, result.message);
         }
 

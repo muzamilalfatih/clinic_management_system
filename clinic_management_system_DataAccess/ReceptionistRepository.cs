@@ -139,11 +139,11 @@ SET
     ShiftTypeId = @ShiftTypeId,
     HireDate = @HireDate
 
-WHERE UserId = @UserId;
+WHERE Id = @Id;
 select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@UserId", updateReceptionistDTO.UserId);
+                    command.Parameters.AddWithValue("@Id", updateReceptionistDTO.Id);
                     command.Parameters.AddWithValue("@ShiftTypeId", updateReceptionistDTO.ShiftTypeId);
                     command.Parameters.AddWithValue("@HireDate", updateReceptionistDTO.HireDate);
 
@@ -236,6 +236,39 @@ WHERE Receptionists.UserId = @UserId;";
                     catch (Exception ex)
                     {
                         return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                    }
+
+                }
+            }
+        }
+        public async Task<Result<int>> GetIdAsync(int userId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"
+select Id from Receptionists
+where UserId = @UserId";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object result = await command.ExecuteScalarAsync();
+                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<int>(true, "receptionist id retrieved successfully.", id);
+                        }
+                        else
+                        {
+                            return new Result<int>(false, "receptionist not found.", -1, 404);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
                     }
 
                 }

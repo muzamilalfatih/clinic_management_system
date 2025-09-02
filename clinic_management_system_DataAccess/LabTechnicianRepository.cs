@@ -104,11 +104,11 @@ SET
     PreviousExperienceYears = @PreviousExperienceYears,  
     JoinDate = @JoinDate
 
-WHERE UserId = @UserId;
+WHERE Id = @Id;
 select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@UserId", updateLabTechnicianDTO.UserId);
+                    command.Parameters.AddWithValue("@Id", updateLabTechnicianDTO.Id);
                     command.Parameters.AddWithValue("@DeparmentId", updateLabTechnicianDTO.DepartmentId);
                     command.Parameters.AddWithValue("@PreviousExperienceYears", updateLabTechnicianDTO.PrevExperienceYears);
                     command.Parameters.AddWithValue("@JoinDate", updateLabTechnicianDTO.JoinDate);
@@ -210,7 +210,38 @@ WHERE LabTechnicians.UserId = @UserId";
                 }
             }
         }
+        public async Task<Result<int>> GetIdAsync(int userId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"select Id from LabTechnicians
+where UserId = @UserId";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object result = await command.ExecuteScalarAsync();
+                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<int>(true, "LabTechnician id retrieved successfully.", id);
+                        }
+                        else
+                        {
+                            return new Result<int>(false, "Id not found.", -1, 404);
+                        }
 
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                    }
+
+                }
+            }
+        }
 
     }
 }
