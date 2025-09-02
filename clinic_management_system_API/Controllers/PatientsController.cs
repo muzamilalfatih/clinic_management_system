@@ -83,7 +83,7 @@ namespace clinic_management_system_API.Controllers
             return StatusCode(result.errorCode, result.message);
         }
 
-        [Authorize(Roles = "Patient,SuperAdmin,Admin,Receptionist")]
+        [Authorize(Roles = "Patient")]
         [HttpPut("me")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
