@@ -125,9 +125,9 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.Cancel(id);
         }
-        public async Task<Result<bool>> ChangeStatus(int id, AppointmentStatus status)
+        public async Task<Result<bool>> ChangeStatus(int billId, AppointmentStatus status, SqlConnection conn, SqlTransaction tran)
         {
-            return await _repo.ChangeStatus(id, status);
+            return await _repo.ChangeStatus(billId, status, conn, tran);
         }
         public async Task<Result<bool>> Reschedule(RescheduleDTO rescheduleDTO)
         {

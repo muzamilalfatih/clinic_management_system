@@ -34,5 +34,13 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.Pay(id, conn, tran);
         }
+        public async Task<Result<decimal>> GetAmount(int id)
+        {
+            return await _repo.GetAmount(id);
+        }
+        public async Task<Result<bool>> IsPaid(int id)
+        {
+            return await _repo.IsPaid(id);
+        }
     }
 }

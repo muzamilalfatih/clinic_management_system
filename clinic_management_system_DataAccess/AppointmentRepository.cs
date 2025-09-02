@@ -70,23 +70,24 @@ namespace clinic_management_system_DataAccess
             {
                 string query = @"
 
-    SELECT 
-        a.Id,
-        CONCAT(pp.FirstName, ' ', pp.SecondName, ' ', pp.ThirdName, ' ', pp.LastName) AS PatientFullName,
-        CONCAT(pd.FirstName, ' ', pd.SecondName, ' ', pd.ThirdName, ' ', pd.LastName) AS DoctorFullName,
-        a.Fee,
-        a.Date,
-	    a.Status,
-	    a.notes,
-	    a.ParentAppoinmentId
-    FROM Appointments a
-    INNER JOIN Users up ON a.PatientId = up.Id
-    INNER JOIN People pp ON up.PersonId = pp.Id
+   SELECT 
+    a.Id,
+    CONCAT(pp.FirstName, ' ', pp.SecondName, ' ', pp.ThirdName, ' ', pp.LastName) AS Patient,
+    CONCAT(pd.FirstName, ' ', pd.SecondName, ' ', pd.ThirdName, ' ', pd.LastName) AS Doctor,
+    a.Fee,
+    a.Date,
+    a.Status,
+    a.Notes,
+    a.ParentAppoinmentId
+FROM Appointments a
+JOIN Patients p ON a.PatientId = p.Id
+JOIN Users uPatient ON p.UserId = uPatient.Id
+JOIN People pp ON uPatient.PersonId = pp.Id
+JOIN Doctors d ON a.DoctorId = d.Id
+JOIN Users uDoctor ON d.UserId = uDoctor.Id
+JOIN People pd ON uDoctor.PersonId = pd.Id
+WHERE a.Id = @id;
 
-    INNER JOIN Users ud ON a.DoctorId = ud.Id
-    INNER JOIN People pd ON ud.PersonId = pd.Id
-
-    where a.Id = @id
     ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -431,40 +432,29 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                 }
             }
         }
-        public async Task<Result<bool>> ChangeStatus(int id, AppointmentStatus status)
+        public async Task<Result<bool>> ChangeStatus(int billId, AppointmentStatus status, SqlConnection conn, SqlTransaction tran)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"UPDATE Appointments
+            string query = @"UPDATE Appointments
                                     SET 
                                         Status = @Status
-                                    WHERE Id = @Id
+                                    WHERE BillId = @BillId
                                     select @@ROWCOUNT";
-                using (SqlCommand command = new SqlCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@Status", (int)status);
+                command.Parameters.AddWithValue("@BillId", billId);
+
+                object result = await command.ExecuteScalarAsync();
+                int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                if (rowAffected > 0)
                 {
-                    command.Parameters.AddWithValue("@Status", (int)status);
-                    command.Parameters.AddWithValue("@Id", id);
-
-                    try
-                    {
-                        await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
-                        int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                        if (rowAffected > 0)
-                        {
-                            return new Result<bool>(true, "Appointment Cancelled.", true);
-                        }
-                        else
-                        {
-                            return new Result<bool>(false, "Not allowed to canecll.", false);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
-                    }
-
+                    return new Result<bool>(true, "Appointment status changed.", true);
                 }
+                else
+                {
+                    return new Result<bool>(false, "Failed to change appointment status.", false);
+                }
+
             }
         }
     }

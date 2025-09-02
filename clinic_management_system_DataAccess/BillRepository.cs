@@ -139,6 +139,66 @@ SELECT SCOPE_IDENTITY();
 
             }
         }
+        public async Task<Result<decimal>> GetAmount(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT Amount FROM Bills 
+WHERE Id = @Id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object? result = await command.ExecuteScalarAsync();
+                        decimal fee = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<decimal>(true, "Amount id retrieved successfully.", fee);
+                        }
+                        else
+                        {
+                            return new Result<decimal>(false, "Failed to get amount.", 0);
+                        }
 
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<decimal>(false, "An unexpected error occurred on the server.", 0, 500);
+                    }
+
+                }
+            }
+        }
+        public async Task<Result<bool>> IsPaid(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"
+select Found = 1 from Bills 
+where Id = @Id and Status = 2";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    bool isFound;
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            isFound = reader.HasRows;
+                        }
+                        return new Result<bool>(true, "Bill  check completed.", isFound);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                    }
+
+                }
+            }
+        }
     }
 }
