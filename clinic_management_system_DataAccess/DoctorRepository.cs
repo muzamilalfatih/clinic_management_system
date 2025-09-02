@@ -380,5 +380,37 @@ WHERE UserId = @userId";
                 }
             }
         }
+        public async Task<Result<decimal>> GetConsultationFee(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT ConsultationFee FROM Doctors 
+WHERE Id = @Id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object? result = await command.ExecuteScalarAsync();
+                        decimal fee = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<decimal>(true, "Doctor id retrieved successfully.", fee);
+                        }
+                        else
+                        {
+                            return new Result<decimal>(false, "User not found.", 0, 404);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<decimal>(false, "An unexpected error occurred on the server.", 0, 500);
+                    }
+
+                }
+            }
+        }
     }
 }

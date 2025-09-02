@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
 using clinic_management_system_Bussiness;
+using SharedClasses.DTOS.Bills;
+using Microsoft.AspNetCore.Authorization;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/bills")]
-     [ApiController]
+    [ApiController]
+    [Authorize]
     public class BillsController : ControllerBase
-     {
+    {
 
         private readonly BillService _service;
         public BillsController(BillService serivce)
@@ -14,46 +17,22 @@ namespace clinic_management_system_API.Controllers
             _service = serivce;
         }
 
+        [Authorize(Roles = "Admin,SuperAmdmin")]
         [HttpGet("{id}", Name = "GetBillByID")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BillDTO>> GetBillByID(int id)
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<BillInfoDTO>> GetBillByID(int id)
         {
-            Result<BillDTO> result = await _service.FindAsync(id);
+            Result<BillInfoDTO> result = await _service.FindAsync(id);
             if (result.success)
             {
                 return Ok(result.data);
             }
             return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
-        }
-
-        [HttpPost(Name = "AddBill")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BillDTO>> AddBill(BillDTO billDTO)
-        {
-            Result<int> result = await _service.AddNewBillAsync(billDTO);  
-            if (result.success)
-            {
-                return CreatedAtRoute("GetBillByID", new { id = result.data } , billDTO);
-            }
-                return StatusCode(result.errorCode, result.message);
-        }
-
-        [HttpPut("{id}", Name = "UpdateBill")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BillDTO>> UpdateBill(int id, [FromBody] BillDTO billDTO)
-        {
-            Result<int> result = await _service.UpdateBillAsync(billDTO);
-            if (result.success)
-                return Ok(billDTO);
-           return StatusCode(result.errorCode, result.message);
         }
 
         [HttpDelete("{id}", Name = "DeleteBill")]
@@ -72,5 +51,5 @@ namespace clinic_management_system_API.Controllers
         }
 
 
-     }
+    }
 }

@@ -8,14 +8,14 @@ using System.Data;
 namespace clinic_management_system_DataAccess
 {
     public class AppointmentRepository
-     {
+    {
         private readonly string _connectionString;
 
         public AppointmentRepository(IOptions<DatabaseSettings> options)
         {
             _connectionString = options.Value.DefaultConnection;
         }
-        public async Task<Result<AppointmentDTO>>GetAppointmentInfoById(int id)
+        public async Task<Result<AppointmentDTO>> GetAppointmentInfoById(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -64,10 +64,10 @@ namespace clinic_management_system_DataAccess
                 }
             }
         }
-        public  async Task<Result<AppointmentInfoDTO>> GetFullAppointmentInfoByIDAsync(int id)
+        public async Task<Result<AppointmentInfoDTO>> GetFullAppointmentInfoByIDAsync(int id)
         {
-             using (SqlConnection connection = new SqlConnection(_connectionString))
-             {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
                 string query = @"
 
     SELECT 
@@ -88,59 +88,58 @@ namespace clinic_management_system_DataAccess
 
     where a.Id = @id
     ";
-                 using (SqlCommand command = new SqlCommand(query, connection))
-                 {
-                        command.Parameters.AddWithValue("@id", id);
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
 
-                         try
-                         {
-                             await connection.OpenAsync();
-                             using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                             {
-                                 if (await reader.ReadAsync())
-                                 {
-                                    AppointmentInfoDTO appointmentDTO =  new AppointmentInfoDTO
-                                     (
-                                         reader.GetInt32(reader.GetOrdinal("Id")),
-                                         reader.GetString(reader.GetOrdinal("Patient")),
-                                         reader.GetString(reader.GetOrdinal("Doctor")),
-                                         reader.GetDecimal(reader.GetOrdinal("Fee")),
-                                         reader.GetDateTime(reader.GetOrdinal("Date")),
-                                        (AppointmentStatus) reader.GetByte(reader.GetOrdinal("Status")),
-                                         reader.IsDBNull(reader.GetOrdinal("Notes"))
-                                            ? (string?)null
-                                            : reader.GetString(reader.GetOrdinal("Notes")),
-                                         reader.IsDBNull(reader.GetOrdinal("ParentAppoinmentId"))
-                                            ? (int?)null
-                                            : reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
-                                     );
-                                    return new Result<AppointmentInfoDTO>(true, "Appointment found successfully", appointmentDTO);
-                                 }
-                                 else
-                                 {
-                                    return new Result<AppointmentInfoDTO>(false, "Appointment not found.", null, 404);
-                                 }
-                             }
-                         }
-                         catch (Exception ex)
-                         {
-                             return new Result<AppointmentInfoDTO>(false, "An unexpected error occurred on the server.", null, 500);
-                         }
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                AppointmentInfoDTO appointmentDTO = new AppointmentInfoDTO
+                                 (
+                                     reader.GetInt32(reader.GetOrdinal("Id")),
+                                     reader.GetString(reader.GetOrdinal("Patient")),
+                                     reader.GetString(reader.GetOrdinal("Doctor")),
+                                     reader.GetDecimal(reader.GetOrdinal("Fee")),
+                                     reader.GetDateTime(reader.GetOrdinal("Date")),
+                                    (AppointmentStatus)reader.GetByte(reader.GetOrdinal("Status")),
+                                     reader.IsDBNull(reader.GetOrdinal("Notes"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Notes")),
+                                     reader.IsDBNull(reader.GetOrdinal("ParentAppoinmentId"))
+                                        ? (int?)null
+                                        : reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
+                                 );
+                                return new Result<AppointmentInfoDTO>(true, "Appointment found successfully", appointmentDTO);
+                            }
+                            else
+                            {
+                                return new Result<AppointmentInfoDTO>(false, "Appointment not found.", null, 404);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<AppointmentInfoDTO>(false, "An unexpected error occurred on the server.", null, 500);
+                    }
 
-                     }
-             }
-         }
+                }
+            }
+        }
 
-        public  async Task<Result<int>> AddNewAppointmentAsync(AddNewAppointmentDTO addNewAppointmentDTO)
-         {
-         using (SqlConnection connection = new SqlConnection(_connectionString))
-         {
+        public async Task<Result<int>> AddNewAppointmentAsync(AddNewAppointmentDTO addNewAppointmentDTO, SqlConnection conn, SqlTransaction tran)
+        {
             string query = @"
 INSERT INTO Appointments
       (
       PatientId
       ,DoctorId
-      ,Fee
+      ,Fee 
+      ,BillId
       ,Date
       ,Notes
       ,ParentAppoinmentId)
@@ -149,48 +148,41 @@ VALUES
       @PatientId
       ,@DoctorId
       ,@Fee
+      ,@BillId
       ,@Date
       ,@Notes
       ,@ParentAppoinmentId);
 SELECT SCOPE_IDENTITY();
 ";
-             using (SqlCommand command = new SqlCommand(query, connection))
-             {
-                    command.Parameters.AddWithValue("@PatientId", addNewAppointmentDTO.PatientId);
-                    command.Parameters.AddWithValue("@DoctorId", addNewAppointmentDTO.DoctorId);
-                    command.Parameters.AddWithValue("@Fee", addNewAppointmentDTO.Fee);
-                    command.Parameters.AddWithValue("@Date", addNewAppointmentDTO.Date);
-                    command.Parameters.AddWithValue("@Notes",(object?)addNewAppointmentDTO.Notes ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@ParentAppoinmentId", (object?)addNewAppointmentDTO.ParentAppointmentId ?? DBNull.Value);
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@PatientId", addNewAppointmentDTO.PatientId);
+                command.Parameters.AddWithValue("@DoctorId", addNewAppointmentDTO.DoctorId);
+                command.Parameters.AddWithValue("@Fee", addNewAppointmentDTO.Fee);
+                command.Parameters.AddWithValue("@BillId", addNewAppointmentDTO.BillId);
+                command.Parameters.AddWithValue("@Date", addNewAppointmentDTO.Date);
+                command.Parameters.AddWithValue("@Notes", (object?)addNewAppointmentDTO.Notes ?? DBNull.Value);
+                command.Parameters.AddWithValue("@ParentAppoinmentId", (object?)addNewAppointmentDTO.ParentAppointmentId ?? DBNull.Value);
 
-                     try
-                     {
-                         await connection.OpenAsync();
-                        object? result = await command.ExecuteScalarAsync();
-                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                         if (id > 0)
-                         {
-                             return new Result<int>(true, "Appointment added successfully.", id);
-                          }
-                          else
-                          {
-                             return new Result<int>(false, "Failed to add appointment.", -1);
-                          }
-                     }
-                     catch (Exception ex)
-                     {
-                         return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
-                     }
+                object? result = await command.ExecuteScalarAsync();
+                int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                if (id > 0)
+                {
+                    return new Result<int>(true, "Appointment added successfully.", id);
+                }
+                else
+                {
+                    return new Result<int>(false, "Failed to add appointment.", -1);
+                }
 
-                 }
-             }
-         }
+            }
+        }
 
-        public  async Task<Result<int>> UpdateAppointmentAsync(UpdateAppointmentDTO updateAppointmentDTO)
+        public async Task<Result<bool>> UpdateAppointmentAsync(UpdateAppointmentDTO updateAppointmentDTO)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
-         {
-            string query = @"
+            {
+                string query = @"
 UPDATE Appointments
 SET 
     DoctorId = @DoctorId,
@@ -200,8 +192,8 @@ SET
     ParentAppointmentId = @ParentAppointmentId
 WHERE Id = @Id;
 select @@ROWCOUNT";
-             using (SqlCommand command = new SqlCommand(query, connection))
-             {
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
                     command.Parameters.AddWithValue("@Id", updateAppointmentDTO.Id);
                     command.Parameters.AddWithValue("@DoctorId", updateAppointmentDTO.DoctorId);
                     command.Parameters.AddWithValue("@Fee", updateAppointmentDTO.Fee);
@@ -210,60 +202,60 @@ select @@ROWCOUNT";
                     command.Parameters.AddWithValue("@ParentAppointmentId", updateAppointmentDTO.ParentAppointmentId);
 
 
-                     try
-                     {
-                         await connection.OpenAsync();
+                    try
+                    {
+                        await connection.OpenAsync();
                         object result = await command.ExecuteScalarAsync();
                         int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                         if (rowAffected > 0)
-                         {
-                             return new Result<int>(true, "Appointment updated successfully.", rowAffected);
-                          }
-                          else
-                          {
-                             return new Result<int>(false, "Failed to update appointment.", -1);
-                          }
-                     }
-                     catch (Exception ex)
-                     {
-                         return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
-                     }
+                        if (rowAffected > 0)
+                        {
+                            return new Result<bool>(true, "Appointment updated successfully.", true);
+                        }
+                        else
+                        {
+                            return new Result<bool>(false, "Failed to update appointment.", false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                    }
 
-                 }
+                }
             }
         }
 
-        public  async Task<Result<bool>> DeleteAppointmentAsync(int id)
+        public async Task<Result<bool>> DeleteAppointmentAsync(int id)
         {
-         using (SqlConnection connection = new SqlConnection(_connectionString))
-         {
-            string query = @"DELETE FROM Appointments WHERE Id = @id";
-             using (SqlCommand command = new SqlCommand(query, connection))
-             {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"DELETE FROM Appointments WHERE Id = @id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
                     command.Parameters.AddWithValue("@id", id);
 
-                     try
-                     {
-                         await connection.OpenAsync();
+                    try
+                    {
+                        await connection.OpenAsync();
                         object result = await command.ExecuteScalarAsync();
                         int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                         if (rowAffected > 0)
-                         {
-                             return new Result<bool>(true, "Appointment deleted successfully.", true);
-                          }
-                          else
-                          {
-                             return new Result<bool>(false, "Failed to delete appointment.", false);
-                          }
-                     }
-                     catch (Exception ex)
-                     {
-                         return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
-                     }
+                        if (rowAffected > 0)
+                        {
+                            return new Result<bool>(true, "Appointment deleted successfully.", true);
+                        }
+                        else
+                        {
+                            return new Result<bool>(false, "Failed to delete appointment.", false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                    }
 
-                 }
+                }
             }
-         }
+        }
 
         public async Task<Result<bool>> HasPenddingAppointment(int pateintId)
         {
@@ -305,7 +297,7 @@ select @@ROWCOUNT";
                                     select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Status",(int) AppointmentStatus.Cancelled);
+                    command.Parameters.AddWithValue("@Status", (int)AppointmentStatus.Cancelled);
                     command.Parameters.AddWithValue("@Id", id);
 
 
@@ -425,7 +417,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                                         (AppointmentStatus)reader.GetByte(reader.GetOrdinal("Status")),
                                         reader.GetString(reader.GetOrdinal("Notes")),
                                         reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
-                                    ));                                 
+                                    ));
                             }
 
                             return new Result<List<AppointmentInfoDTO>>(true, "Appointments retrieved successfully", appointments);

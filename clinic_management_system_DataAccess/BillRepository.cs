@@ -1,8 +1,11 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using SharedClasses;
+using SharedClasses.DTOS.Bills;
+using SharedClasses.Enums;
 using System.Data;
 using System.Diagnostics;
+using System.Runtime.InteropServices.Marshalling;
 namespace clinic_management_system_DataAccess
 {
     public class BillRepository
@@ -14,7 +17,7 @@ namespace clinic_management_system_DataAccess
             _connectionString = options.Value.DefaultConnection;
         }
 
-        public  async Task<Result<BillDTO>> GetBillInfoByIDAsync(int id)
+        public  async Task<Result<BillInfoDTO>> GetBillInfoByIDAsync(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -30,120 +33,58 @@ namespace clinic_management_system_DataAccess
                         {
                             if (await reader.ReadAsync())
                             {
-                                BillDTO billDTO = new BillDTO
+                                BillInfoDTO billDTO = new BillInfoDTO
                                  (
                                      reader.GetInt32(reader.GetOrdinal("Id")),
-                                     Convert.ToSingle(reader.GetDecimal(reader.GetOrdinal("TotalAmount"))),
+                                     reader.GetDecimal(reader.GetOrdinal("Amount")),
                                      reader.GetDateTime(reader.GetOrdinal("date")),
-                                     reader.GetByte(reader.GetOrdinal("Status"))
+                                     (BillStatus)reader.GetByte(reader.GetOrdinal("Status"))
                                  );
-                                return new Result<BillDTO>(true, "Bill found successfully", billDTO);
+                                return new Result<BillInfoDTO>(true, "Bill found successfully", billDTO);
                             }
                             else
                             {
-                                return new Result<BillDTO>(false, "Bill not found.", null, 404);
+                                return new Result<BillInfoDTO>(false, "Bill not found.", null, 404);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        return new Result<BillDTO>(false, "An unexpected error occurred on the server.", null, 500);
+                        return new Result<BillInfoDTO>(false, "An unexpected error occurred on the server.", null, 500);
                     }
 
                 }
             }
         }
-
-        public  async Task<Result<int>> AddNewBillAsync(BillDTO billDTO)
+        public  async Task<Result<int>> AddNewBillAsync(decimal amount, SqlConnection conn, SqlTransaction tran)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = @"
+            string query = @"
 INSERT INTO Bills
       (
-      TotalAmount
-      ,date
-      ,Status)
+      Amount)
 VALUES
       (
-      @TotalAmount
-      ,@date
-      ,@Status);
+      @Amount);
 SELECT SCOPE_IDENTITY();
 ";
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@TotalAmount", billDTO.totalAmount);
-                    command.Parameters.AddWithValue("@date", billDTO.date);
-                    command.Parameters.AddWithValue("@Status", billDTO.status);
-
-
-                    try
-                    {
-                        await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
-                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                        if (id > 0)
-                        {
-                            return new Result<int>(true, "Bill added successfully.", id);
-                        }
-                        else
-                        {
-                            return new Result<int>(false, "Failed to add bill.", -1);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
-                    }
-
-                }
-            }
-        }
-
-        public  async Task<Result<int>> UpdateBillAsync(BillDTO billDTO)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
             {
-                string query = @"
-UPDATE Bills
-SET 
-    TotalAmount = @TotalAmount,
-    date = @date,
-    Status = @Status
-WHERE Id = @Id;
-select @@ROWCOUNT";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                command.Parameters.AddWithValue("@Amount", amount);
+
+
+                object? result = await command.ExecuteScalarAsync();
+                int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                if (id > 0)
                 {
-                    command.Parameters.AddWithValue("@Id", billDTO.id);
-                    command.Parameters.AddWithValue("@TotalAmount", billDTO.totalAmount);
-                    command.Parameters.AddWithValue("@date", billDTO.date);
-                    command.Parameters.AddWithValue("@Status", billDTO.status);
-
-
-                    try
-                    {
-                        await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
-                        int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                        if (rowAffected > 0)
-                        {
-                            return new Result<int>(true, "Bill updated successfully.", rowAffected);
-                        }
-                        else
-                        {
-                            return new Result<int>(false, "Failed to update bill.", -1);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
-                    }
-
+                    return new Result<int>(true, "Bill added successfully.", id);
                 }
+                else
+                {
+                    return new Result<int>(false, "Failed to add bill.", -1);
+                }
+
             }
         }
-
         public  async Task<Result<bool>> DeleteBillAsync(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -156,8 +97,8 @@ select @@ROWCOUNT";
                     try
                     {
                         await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
-                        int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        int rowAffected = await command.ExecuteNonQueryAsync();
+
                         if (rowAffected > 0)
                         {
                             return new Result<bool>(true, "Bill deleted successfully.", true);
@@ -175,7 +116,29 @@ select @@ROWCOUNT";
                 }
             }
         }
+        public async Task<Result<bool>> Pay(int id, SqlConnection conn, SqlTransaction tran)
+        {
+            string query = @"
+                                Update Bills
+                                SET Status = 2
+                                WHERE Id = @Id";
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@Id", id);
 
+                int rowAffected = await command.ExecuteNonQueryAsync();
+
+                if (rowAffected > 0)
+                {
+                    return new Result<bool>(true, "Bill paid successfully.", true);
+                }
+                else
+                {
+                    return new Result<bool>(false, "Failed to pay bill.", false);
+                }
+
+            }
+        }
 
     }
 }

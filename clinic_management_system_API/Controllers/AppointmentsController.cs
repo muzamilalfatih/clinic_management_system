@@ -42,7 +42,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<AppointmentInfoDTO>> AddAppointment(AddNewAppointmentDTO addNewAppointmentDTO)
+        public async Task<ActionResult<AppointmentInfoDTO>> AddAppointment(AddNewAppointmentRequestDTO addNewAppointmentDTO)
         {
             Result<int> result = await _service.AddNewAppointmentAsync(addNewAppointmentDTO);
             if (result.success)
@@ -62,7 +62,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<UpdateAppointmentDTO>> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateAppointmentDTO)
         {
-            Result<int> result = await _service.UpdateAppointmentAsync(updateAppointmentDTO);
+            Result<bool> result = await _service.UpdateAppointmentAsync(updateAppointmentDTO);
 
             if (result.success)
                 return Ok(updateAppointmentDTO);

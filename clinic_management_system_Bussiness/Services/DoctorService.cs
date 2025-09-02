@@ -121,5 +121,9 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.GetDoctorIdAsync(userId);
         }
+        public async Task<Result<decimal>> GetConsultationFee(int id)
+        {
+            return await _repo.GetConsultationFee(id);
+        }
     }
 }
