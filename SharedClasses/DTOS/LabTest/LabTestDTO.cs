@@ -1,12 +1,12 @@
-namespace SharedClasses
+namespace SharedClasses.DTOS.LabTest
 {
     public class LabTestDTO
      {
         public int id { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public float price { get; set; }
-        public LabTestDTO(int id, string name, string description, float price)
+        public decimal price { get; set; }
+        public LabTestDTO(int id, string name, string description, decimal price)
          {
              this.id = id;
              this.name = name;

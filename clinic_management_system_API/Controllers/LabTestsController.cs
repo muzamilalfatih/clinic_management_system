@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
 using clinic_management_system_Bussiness;
 using clinic_management_system_DataAccess;
+using SharedClasses.DTOS.LabTest;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/labTests")]

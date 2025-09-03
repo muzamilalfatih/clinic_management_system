@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using SharedClasses;
+using SharedClasses.DTOS.LabTest;
 using System.Data;
 using System.Diagnostics.Metrics;
 using System.Text;
@@ -35,7 +36,7 @@ namespace clinic_management_system_DataAccess
                                      reader.GetInt32(reader.GetOrdinal("Id")),
                                      reader.GetString(reader.GetOrdinal("Name")),
                                      reader.GetString(reader.GetOrdinal("Description")),
-                                     Convert.ToSingle(reader.GetDecimal(reader.GetOrdinal("Price")))
+                                     reader.GetDecimal(reader.GetOrdinal("Price"))
                                  );
                                 return new Result<LabTestDTO>(true, "LabTest found successfully", labTestDTO);
                             }
