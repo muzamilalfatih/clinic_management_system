@@ -8,10 +8,10 @@ using SharedClasses.Enums;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/labTechnicians")]
-     [ApiController]
+    [ApiController]
     [Authorize]
     public class LabTechniciansController : ControllerBase
-     {
+    {
         private readonly LabTechnicianService _service;
         private readonly CurrentUserSevice _currentUserSevice;
 
@@ -45,12 +45,12 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTechnicianDTO>> AddLabTechnician([FromBody] CreateLabTechnicianRequestDTO createLabTechnicianResquestDTO)
         {
             createLabTechnicianResquestDTO.UserDTO.CreateUserDTO.createUserRoleDTO.roleId = (int)Roles.LabTechnical;
-            Result<int> result = await _service.CreateLabTechnician(createLabTechnicianResquestDTO); 
+            Result<int> result = await _service.CreateLabTechnician(createLabTechnicianResquestDTO);
             if (result.success)
             {
                 return CreatedAtRoute("GetLabTechnicianByID", new { id = result.data }, createLabTechnicianResquestDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.errorCode, result.message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -65,7 +65,7 @@ namespace clinic_management_system_API.Controllers
             if (result.success)
                 return Ok(updateDTO);
 
-           return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.errorCode, result.message);
         }
 
         [Authorize(Roles = "LabTechnical")]
@@ -80,7 +80,7 @@ namespace clinic_management_system_API.Controllers
             if (currentUserId == null)
                 return Unauthorized("Missing user ID in token");
 
-            Result<bool> result = await _service.UpdateLabTechnicianAsync((int) currentUserId, updateDTO);
+            Result<bool> result = await _service.UpdateLabTechnicianAsync((int)currentUserId, updateDTO);
             if (result.success)
                 return Ok(updateDTO);
 
@@ -104,5 +104,5 @@ namespace clinic_management_system_API.Controllers
         }
 
 
-     }
+    }
 }
