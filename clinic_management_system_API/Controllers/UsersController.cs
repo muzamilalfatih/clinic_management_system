@@ -133,35 +133,7 @@ namespace clinic_management_system_API.Controllers
             return StatusCode(result.errorCode, result.message);
         }
 
-        [Authorize]
-        [HttpPost("/me/be-a-patient")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseProfileDTO>> BeApatient()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(userIdClaim))
-                return Unauthorized("Missing user ID in token");
-
-            int CurrentUserId = int.Parse(userIdClaim);
-
-            if (User.IsInRole("Patient"))
-                return Forbid("Patient not allowed!");
-
-            CreateUserRoleDTO createUserDTO = new CreateUserRoleDTO((int)Roles.Patient, CurrentUserId, true, false);
-             
-            Result<bool> result = await _service.AssignNewRoleAsync(createUserDTO);
-            if (result.success)
-            {
-                return Ok(result.message);
-            }
-            return StatusCode(result.errorCode, result.message);
-        }
-
+        
         [Authorize(Roles="Admin, SuperAdmin")]
         [HttpPost("assign-new-role")]
         [ProducesResponseType(StatusCodes.Status200OK)]

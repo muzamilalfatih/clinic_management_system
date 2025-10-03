@@ -1,10 +1,12 @@
-using SharedClasses;
 using clinic_management_system_DataAccess;
-using SharedClasses.DTOS.Patients;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using SharedClasses;
+using SharedClasses.DTOS.Patients;
 using SharedClasses.DTOS.People;
+using SharedClasses.DTOS.UserRoles;
 using SharedClasses.DTOS.Users;
+using SharedClasses.Enums;
 namespace clinic_management_system_Bussiness
 {
     public class PatientService
@@ -14,13 +16,17 @@ namespace clinic_management_system_Bussiness
         private readonly PersonService _personSerivce;
         private readonly UserService _userSerivce;
         private readonly string _connectionString;
+        private readonly UserRoleService _userRoleService;
 
-        public PatientService(PatientRepository repo, PersonService personService, IOptions<DatabaseSettings> options, UserService userSerivce)
+        public PatientService(PatientRepository repo, PersonService personService, 
+            IOptions<DatabaseSettings> options, UserService userSerivce,
+            UserRoleService userRoleService)
         {
             _repo = repo;
             _personSerivce = personService;
             _connectionString = options.Value.DefaultConnection;
             _userSerivce = userSerivce;
+            _userRoleService = userRoleService;
         }
 
         public async Task<Result<PatientDTO>> FindAsync(int id)
@@ -76,7 +82,43 @@ namespace clinic_management_system_Bussiness
 
             }
         }
+        public async Task<Result<int>> AddNewPatientAsync(int userId, CreatePatientDTO patientDTO)
+        {
+            CreateUserRoleDTO createRoleDTO = new CreateUserRoleDTO((int)Roles.Patient, userId);
 
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction? tran = null;
+                try
+                {
+                    await conn.OpenAsync();
+                    tran = conn.BeginTransaction();
+
+                    Result<int> roleResult = await _userRoleService.AddNewUserRoleAsync(createRoleDTO, conn, tran);
+                    if (!roleResult.success)
+                    {
+                        tran.Rollback();
+                        return new Result<int>(false, roleResult.message, -1, roleResult.errorCode);
+                    }
+                    Result<int> patientResult = await _repo.AddNewPatientAsync(userId, patientDTO, conn, tran);
+                    if (!patientResult.success)
+                    {
+                        tran.Rollback();
+                        return patientResult;
+                    }
+                    tran.Commit();
+                    return patientResult;
+
+                }
+                catch (Exception ex)
+                {
+                    tran?.Rollback();
+                    return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                }
+
+            }
+
+        }
         public async Task<Result<bool>> UpdatePatientAsync(UpdatePatientDTO updateDTO)
         {
 

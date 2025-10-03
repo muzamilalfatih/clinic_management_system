@@ -8,6 +8,7 @@ namespace clinic_management_system_API.Controllers
 {
     [Route("api/patients")]
     [ApiController]
+    [Authorize]
     public class PatientsController : ControllerBase
     {
         private readonly PatientService _service;
@@ -53,6 +54,31 @@ namespace clinic_management_system_API.Controllers
         }
 
 
+        [HttpPost("be-patient")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<CreatePatientDTO>> BePatient(CreatePatientDTO patientDTO)
+        {
+            int? currentUserId = _currentUserService.UserId;
+            if (currentUserId == null)
+                return Unauthorized("Missing user ID in token");
+
+            if (User.IsInRole("Patient"))
+                return Forbid("This user is already a aptient!");
+
+
+            Result<int> result = await _service.AddNewPatientAsync((int)currentUserId, patientDTO);
+            if (result.success)
+            {
+                return CreatedAtRoute("GetPatientByID", new { id = result.data }, patientDTO);
+            }
+            return StatusCode(result.errorCode, result.message);
+        }
+        [AllowAnonymous]
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

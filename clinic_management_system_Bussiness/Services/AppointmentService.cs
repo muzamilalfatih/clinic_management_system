@@ -12,7 +12,7 @@ namespace clinic_management_system_Bussiness
 {
     public class AppointmentService
     {
-
+        
         private readonly AppointmentRepository _repo;
         private readonly DoctorAvailabilityService _availabilityService;
         private readonly string _connectionString;
@@ -42,7 +42,7 @@ namespace clinic_management_system_Bussiness
             if (!checkResult.success)
                 return new Result<int>(false, checkResult.message, checkResult.errorCode);
             if (checkResult.data)
-                return new Result<int>(false, "This patient are pendding appointment, not allowed", -1, 400);
+                return new Result<int>(false, "This patient are pendding appointment, Not allowed", -1, 400);
 
 
             Result<List<AvailabilityInfoDTO>> availabilityResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(addNewAppointmentRequestDTO.DoctorId);

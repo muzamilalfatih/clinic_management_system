@@ -132,8 +132,48 @@ SELECT SCOPE_IDENTITY();
 
             }
         }
+        public async Task<Result<int>> AddNewPatientAsync(int userId, CreatePatientDTO createPatientDTO, SqlConnection conn, SqlTransaction tran)
+        {
+            string query = @"
+INSERT INTO Patients
+      (
+      UserId
+      ,MedicalHistroy
+       ,Allergies)
+VALUES
+      (
+      @UserId
+      ,@MedicalHistroy,
+       @Allergies);
+SELECT SCOPE_IDENTITY();
+";
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@MedicalHistroy", createPatientDTO.medicalHistory);
+                command.Parameters.AddWithValue("@Allergies", createPatientDTO.allergies);
+                try
+                {
+                    object result = await command.ExecuteScalarAsync();
+                    int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                    if (id > 0)
+                    {
+                        return new Result<int>(true, "Patient added successfully.", id);
+                    }
+                    else
+                    {
+                        return new Result<int>(false, "Failed to add patient.", -1);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                }
 
-        public  async Task<Result<bool>> UpdatePatientAsync(UpdatePatientDTO updatePatientDTO)
+            }
+        }
+
+        public async Task<Result<bool>> UpdatePatientAsync(UpdatePatientDTO updatePatientDTO)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {

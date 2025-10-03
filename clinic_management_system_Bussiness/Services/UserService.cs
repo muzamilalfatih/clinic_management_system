@@ -169,6 +169,7 @@ namespace clinic_management_system_Bussiness
                 return _createFailReponse<bool>(userRolesResult.message, userRolesResult.errorCode, false);
 
             List<int> existingRoles = userRolesResult.data.Select(r => r.roleId).ToList();
+
             int userId = userRolesResult.data[0].userId;
             if (existingRoles.Contains(createUserRoleDTO.roleId))
                 return _createFailReponse<bool>("This user already has this role.", 400, false);

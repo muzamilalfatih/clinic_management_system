@@ -74,9 +74,9 @@ SELECT SCOPE_IDENTITY();
 ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Name", labTestDTO.name);
-                    command.Parameters.AddWithValue("@Description", labTestDTO.description);
-                    command.Parameters.AddWithValue("@Price", labTestDTO.price);
+                    command.Parameters.AddWithValue("@Name", labTestDTO.Name);
+                    command.Parameters.AddWithValue("@Description", labTestDTO.Description);
+                    command.Parameters.AddWithValue("@Price", labTestDTO.Price);
 
 
                     try
@@ -116,10 +116,10 @@ WHERE Id = @Id;
 select @@ROWCOUNT";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", labTestDTO.id);
-                    command.Parameters.AddWithValue("@Name", labTestDTO.name);
-                    command.Parameters.AddWithValue("@Description", labTestDTO.description);
-                    command.Parameters.AddWithValue("@Price", labTestDTO.price);
+                    command.Parameters.AddWithValue("@Id", labTestDTO.Id);
+                    command.Parameters.AddWithValue("@Name", labTestDTO.Name);
+                    command.Parameters.AddWithValue("@Description", labTestDTO.Description);
+                    command.Parameters.AddWithValue("@Price", labTestDTO.Price);
 
 
                     try

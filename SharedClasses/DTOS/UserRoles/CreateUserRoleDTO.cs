@@ -9,12 +9,11 @@ namespace SharedClasses.DTOS.UserRoles
 {
     public class CreateUserRoleDTO
     {
-        public CreateUserRoleDTO(int roleId, int userId, bool isActive, bool isComplete = true)
+        public CreateUserRoleDTO(int roleId, int userId, bool isActive = true)
         {
             this.roleId = roleId;
             this.userId = userId;
             this.isActive = isActive;
-            this.isComplete = isComplete;
         }
 
         [Required]
