@@ -39,21 +39,21 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<int>> AddNewAppointmentAsync(AddNewAppointmentRequestDTO addNewAppointmentRequestDTO)
         {
             Result<bool> checkResult = await _repo.HasPenddingAppointment(addNewAppointmentRequestDTO.PatientId);
-            if (!checkResult.success)
-                return new Result<int>(false, checkResult.message, checkResult.errorCode);
-            if (checkResult.data)
+            if (!checkResult.Success)
+                return new Result<int>(false, checkResult.Message, checkResult.ErrorCode);
+            if (checkResult.Data)
                 return new Result<int>(false, "This patient are pendding appointment, Not allowed", -1, 400);
 
 
             Result<List<AvailabilityInfoDTO>> availabilityResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(addNewAppointmentRequestDTO.DoctorId);
-            if (!availabilityResult.success)
-                return new Result<int>(false, availabilityResult.message, -1, availabilityResult.errorCode);
+            if (!availabilityResult.Success)
+                return new Result<int>(false, availabilityResult.Message, -1, availabilityResult.ErrorCode);
 
             DayOfWeek requestedDay = addNewAppointmentRequestDTO.Date.DayOfWeek;
             TimeOnly requestedTime = TimeOnly.FromDateTime(addNewAppointmentRequestDTO.Date);
 
 
-            bool isValid = availabilityResult.data.Any(a =>
+            bool isValid = availabilityResult.Data.Any(a =>
                      a.DayOfWeek == requestedDay &&
                      requestedTime >= a.StartTime &&
                      requestedTime < a.EndTime);
@@ -62,8 +62,8 @@ namespace clinic_management_system_Bussiness
                 return new Result<int>(false, "Outside doctor's availabilities", -1, 400);
 
             Result<decimal> feeResult = await _doctorService.GetConsultationFee(addNewAppointmentRequestDTO.DoctorId);
-            if (!feeResult.success)
-                return new Result<int>(false, feeResult.message, -1, feeResult.errorCode);
+            if (!feeResult.Success)
+                return new Result<int>(false, feeResult.Message, -1, feeResult.ErrorCode);
 
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -74,20 +74,20 @@ namespace clinic_management_system_Bussiness
                     await conn.OpenAsync();
                     tran = conn.BeginTransaction();
 
-                    Result<int> CreateBillResult = await _billService.AddNewBillAsync(feeResult.data, conn, tran);
-                    if (!CreateBillResult.success)
+                    Result<int> CreateBillResult = await _billService.AddNewBillAsync(feeResult.Data, conn, tran);
+                    if (!CreateBillResult.Success)
                     {
                         tran?.Rollback();
-                        return new Result<int>(false, CreateBillResult.message, -1, CreateBillResult.errorCode);
+                        return new Result<int>(false, CreateBillResult.Message, -1, CreateBillResult.ErrorCode);
                     }
 
-                    AddNewAppointmentDTO addNew = new AddNewAppointmentDTO(addNewAppointmentRequestDTO, feeResult.data, CreateBillResult.data);
+                    AddNewAppointmentDTO addNew = new AddNewAppointmentDTO(addNewAppointmentRequestDTO, feeResult.Data, CreateBillResult.Data);
 
                     Result<int> createAppointmentResult =  await _repo.AddNewAppointmentAsync(addNew, conn, tran);
-                    if (!createAppointmentResult.success)
+                    if (!createAppointmentResult.Success)
                     {
                         tran?.Rollback();
-                        return new Result<int>(false, createAppointmentResult.message, -1, createAppointmentResult.errorCode);
+                        return new Result<int>(false, createAppointmentResult.Message, -1, createAppointmentResult.ErrorCode);
                     }
 
                     tran.Commit();
@@ -106,9 +106,9 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> UpdateAppointmentAsync(UpdateAppointmentDTO updateAppointmentDTO)
         {
             Result<AppointmentDTO> appointmentResult = await _repo.GetAppointmentInfoById(updateAppointmentDTO.Id);
-            if (!appointmentResult.success)
-                return new Result<bool>(false, appointmentResult.message, false, appointmentResult.errorCode);
-            if (appointmentResult.data.Status == AppointmentStatus.Cancelled || appointmentResult.data.Status == AppointmentStatus.Completed)
+            if (!appointmentResult.Success)
+                return new Result<bool>(false, appointmentResult.Message, false, appointmentResult.ErrorCode);
+            if (appointmentResult.Data.Status == AppointmentStatus.Cancelled || appointmentResult.Data.Status == AppointmentStatus.Completed)
                 return new Result<bool>(false, "Can't update completed or cancelled appointment!", false, 400);
 
             return await _repo.UpdateAppointmentAsync(updateAppointmentDTO);
@@ -135,17 +135,17 @@ namespace clinic_management_system_Bussiness
                 return new Result<bool>(false, "Can't select date in the past!", false, 400);
 
             Result<AppointmentDTO> appointmentResult = await _repo.GetAppointmentInfoById(rescheduleDTO.Id);
-            if (!appointmentResult.success)
-                return new Result<bool>(false, appointmentResult.message, false, appointmentResult.errorCode);
-            Result<List<AvailabilityInfoDTO>> availabilityResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(appointmentResult.data.DoctorId);
-            if (!availabilityResult.success)
-                return new Result<bool>(false, availabilityResult.message, false, availabilityResult.errorCode);
+            if (!appointmentResult.Success)
+                return new Result<bool>(false, appointmentResult.Message, false, appointmentResult.ErrorCode);
+            Result<List<AvailabilityInfoDTO>> availabilityResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(appointmentResult.Data.DoctorId);
+            if (!availabilityResult.Success)
+                return new Result<bool>(false, availabilityResult.Message, false, availabilityResult.ErrorCode);
 
             DayOfWeek requestedDay = rescheduleDTO.NewDate.DayOfWeek;
             TimeOnly requestedTime = TimeOnly.FromDateTime(rescheduleDTO.NewDate);
 
 
-            bool isValid = availabilityResult.data.Any(a =>
+            bool isValid = availabilityResult.Data.Any(a =>
                      a.DayOfWeek == requestedDay &&
                      requestedTime >= a.StartTime &&
                      requestedTime < a.EndTime);

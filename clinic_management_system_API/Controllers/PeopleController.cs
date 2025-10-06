@@ -52,9 +52,9 @@ namespace clinic_management_system_API.Controllers
 
 
             Result<bool> result = await _personFacadeService.UpdatePersonAsync((int)CurrentUserId, updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles ="Admin,SuperAdmin,Rceptionist")]
@@ -68,9 +68,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PersonDTO>> UpdatePerson(int id, [FromBody] UpdatePersonDTO updateDTO)
         {
             Result<bool> result = await _service.UpdatePersonAsync(updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

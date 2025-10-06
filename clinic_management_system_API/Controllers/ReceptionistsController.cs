@@ -31,11 +31,11 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<ReceptionistDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         //[Authorize(Roles = "Admin,SuperAmdmin")]
@@ -67,11 +67,11 @@ namespace clinic_management_system_API.Controllers
             createReceptionistRequestDTO.UserDTO.CreateUserDTO.createUserRoleDTO.roleId = (int)Roles.Receptionist;
 
             Result<int> result = await _service.AddNewReceptionist(createReceptionistRequestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetReceptionistByID", new { id = result.data }, createReceptionistRequestDTO);
+                return CreatedAtRoute("GetReceptionistByID", new { id = result.Data }, createReceptionistRequestDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "Receptionist")]
@@ -90,8 +90,8 @@ namespace clinic_management_system_API.Controllers
 
             Result<bool> result = await _service.UpdateReceptionist((int)currentUserId, updateDTO);
 
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
             return Ok(updateDTO);
         }
 
@@ -107,9 +107,9 @@ namespace clinic_management_system_API.Controllers
         {
             Result<bool> result = await _service.UpdateReceptionist(updateDTO);
 
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
-            return Ok(result.message);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
+            return Ok(result.Message);
         }
 
         [Authorize(Roles = "SuperAdmin,Admin")]
@@ -121,11 +121,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteReceptionist(int id)
         {
             Result<bool> result = await _service.DeleteReceptionistAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Receptionist with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
     }
 }

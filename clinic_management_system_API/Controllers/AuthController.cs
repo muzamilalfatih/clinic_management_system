@@ -24,9 +24,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LoginResponseDTO>> Login(LoginDTO loginDTO)
         {
             Result<LoginResponseDTO> result = await _service.Login(loginDTO);
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
-            return Ok(result.data);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
+            return Ok(result.Data);
         }
     }
 }

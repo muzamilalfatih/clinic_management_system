@@ -23,11 +23,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<SpecializationDTO>> GetSpecializationByID(int id)
         {
             Result<SpecializationDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddSpecialization")]
@@ -37,11 +37,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<SpecializationDTO>> AddSpecialization(SpecializationDTO specializationDTO)
         {
             Result<int> result = await _service.AddNewSpecializationAsync(specializationDTO); 
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetSpecializationByID", new { id = result.data }, specializationDTO);
+                return CreatedAtRoute("GetSpecializationByID", new { id = result.Data }, specializationDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateSpecialization")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<int> result = await _service.UpdateSpecializationAsync(specializationDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(specializationDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteSpecialization")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteSpecialization(int id)
         {
             Result<bool> result = await _service.DeleteSpecializationAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Specialization with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

@@ -30,11 +30,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTestParameterDTO>> GetLabTestParameterByID(int id)
         {
             Result<LabTestParameterDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddLabTestParameter")]
@@ -47,11 +47,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTestParameterDTO>> AddLabTestParameter(AddNewLabTestParameterDTO addNew)
         {
             Result<int> result = await _service.AddNewLabTestParameterAsync(addNew);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabTestParameterByID", new { id = result.data }, addNew);
+                return CreatedAtRoute("GetLabTestParameterByID", new { id = result.Data }, addNew);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateLabTestParameter")]
@@ -68,9 +68,9 @@ namespace clinic_management_system_API.Controllers
                 return BadRequest("Route id and body id do not match!");
 
             Result<int> result = await _service.UpdateLabTestParameterAsync(update);
-            if (result.success)
+            if (result.Success)
                 return Ok(update);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteLabTestParameter")]
@@ -84,11 +84,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabTestParameter(int id)
         {
             Result<bool> result = await _service.DeleteLabTestParameterAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabTestParameter with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
     }
 }

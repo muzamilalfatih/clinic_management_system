@@ -25,9 +25,9 @@ namespace clinic_management_system_Bussiness.Services
         public async Task<Result<int>> AddNewLabTestParameterAsync(AddNewLabTestParameterDTO addnew)
         {
             Result<bool> existenceResult = await _repo.IsExistAsync(addnew.LabTestId, addnew.Name);
-            if (!existenceResult.success)
-                return new Result<int>(false, existenceResult.message, -1, existenceResult.errorCode);
-            if (existenceResult.data)
+            if (!existenceResult.Success)
+                return new Result<int>(false, existenceResult.Message, -1, existenceResult.ErrorCode);
+            if (existenceResult.Data)
                 return new Result<int>(false, "This Lab test already has this parameter!", -1, 400);
 
             return await _repo.AddNewLabTestParameterAsync(addnew);
@@ -36,9 +36,9 @@ namespace clinic_management_system_Bussiness.Services
         public async Task<Result<int>> UpdateLabTestParameterAsync(UpdateLabTestParameterDTO update)
         {
             Result<bool> existenceResult = await _repo.IsExistAsync(update.LabTestId, update.Name);
-            if (!existenceResult.success)
-                return new Result<int>(false, existenceResult.message, -1, existenceResult.errorCode);
-            if (existenceResult.data)
+            if (!existenceResult.Success)
+                return new Result<int>(false, existenceResult.Message, -1, existenceResult.ErrorCode);
+            if (existenceResult.Data)
                 return new Result<int>(false, "This Lab test already has this parameter!", -1, 400);
 
             return await _repo.UpdateLabTestParameterAsync(update);

@@ -22,11 +22,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PrescriptionItemDTO>> GetPrescriptionItemByID(int id)
         {
             Result<PrescriptionItemDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddPrescriptionItem")]
@@ -37,11 +37,11 @@ namespace clinic_management_system_API.Controllers
         {
             
             Result<int> result = await _service.AddNewPrescriptionItemAsync(prescriptionItemDTO); 
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPrescriptionItemByID", new { id = result.data }, prescriptionItemDTO);
+                return CreatedAtRoute("GetPrescriptionItemByID", new { id = result.Data }, prescriptionItemDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdatePrescriptionItem")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<int> result = await _service.UpdatePrescriptionItemAsync(prescriptionItemDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(prescriptionItemDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeletePrescriptionItem")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeletePrescriptionItem(int id)
         {
             Result<bool> result = await _service.DeletePrescriptionItemAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"PrescriptionItem with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

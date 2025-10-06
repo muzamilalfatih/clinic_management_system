@@ -22,11 +22,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabDepartmentDTO>> GetLabDepartmentByID(int id)
         {
             Result<LabDepartmentDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddLabDepartment")]
@@ -36,11 +36,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabDepartmentDTO>> AddLabDepartment(LabDepartmentDTO labDepartmentDTO)
         {
              Result<int> result = await _service._AddNewLabDepartmentAsync(labDepartmentDTO);  
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabDepartmentByID", new { id = result.data }, labDepartmentDTO);
+                return CreatedAtRoute("GetLabDepartmentByID", new { id = result.Data }, labDepartmentDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateLabDepartment")]
@@ -51,9 +51,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabDepartmentDTO>> UpdateLabDepartment(int id, [FromBody] LabDepartmentDTO labDepartmentDTO)
         {
             Result<int> result = await _service.UpdateLabDepartmentAsync(labDepartmentDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(labDepartmentDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteLabDepartment")]
@@ -64,11 +64,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabDepartment(int id)
         {
             Result<bool> result = await _service.DeleteLabDepartmentAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabDepartment with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

@@ -30,11 +30,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTechnicianDTO>> GetLabTechnicianByID(int id)
         {
             Result<LabTechnicianDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -46,11 +46,11 @@ namespace clinic_management_system_API.Controllers
         {
             createLabTechnicianResquestDTO.UserDTO.CreateUserDTO.createUserRoleDTO.roleId = (int)Roles.LabTechnical;
             Result<int> result = await _service.CreateLabTechnician(createLabTechnicianResquestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabTechnicianByID", new { id = result.data }, createLabTechnicianResquestDTO);
+                return CreatedAtRoute("GetLabTechnicianByID", new { id = result.Data }, createLabTechnicianResquestDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -62,10 +62,10 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<UpdateDoctorDTO>> UpdateLabTechnician(int id, [FromBody] UpdateLabTechnicianDTO updateDTO)
         {
             Result<bool> result = await _service.UpdateLabTechnicianAsync(updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
 
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "LabTechnical")]
@@ -81,10 +81,10 @@ namespace clinic_management_system_API.Controllers
                 return Unauthorized("Missing user ID in token");
 
             Result<bool> result = await _service.UpdateLabTechnicianAsync((int)currentUserId, updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
 
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 
@@ -96,11 +96,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabTechnician(int id)
         {
             Result<bool> result = await _service.DeleteLabTechnicianAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabTechnician with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

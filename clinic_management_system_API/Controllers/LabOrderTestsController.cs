@@ -24,11 +24,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabOrderTestDTO>> GetLabOrderTestByID(int id)
         {
             Result<LabOrderTestDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddLabOrderTest")]
@@ -38,11 +38,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabOrderTestDTO>> AddLabOrderTest(CreateLabOrderTestDTO createlabOrderTestDTO)
         {
             Result<int> result = await _service.AddNewLabOrderTestAsync(createlabOrderTestDTO);  
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabOrderTestByID", new { id = result.data }, createlabOrderTestDTO);
+                return CreatedAtRoute("GetLabOrderTestByID", new { id = result.Data }, createlabOrderTestDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateLabOrderTest")]
@@ -54,9 +54,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<int> result = await _service._UpdateLabOrderTestAsync(labOrderTestDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(labOrderTestDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteLabOrderTest")]
@@ -67,11 +67,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabOrderTest(int id)
         {
             Result<bool> result = await _service.DeleteLabOrderTestAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabOrderTest with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

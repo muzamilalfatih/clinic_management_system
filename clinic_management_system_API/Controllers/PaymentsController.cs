@@ -28,11 +28,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PaymentInfoDTO>> GetPaymentByID([FromQuery] int billId)
         {
             Result<PaymentInfoDTO> result = await _service.FindAsync(billId);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddPayment")]
@@ -44,11 +44,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PaymentDTO>> AddPayment(MakePaymentDTO makePaymentDTO)
         {
             Result<bool> result = await _service.PayBill(makePaymentDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPaymentByID", new { id = result.data }, makePaymentDTO);
+                return CreatedAtRoute("GetPaymentByID", new { id = result.Data }, makePaymentDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         

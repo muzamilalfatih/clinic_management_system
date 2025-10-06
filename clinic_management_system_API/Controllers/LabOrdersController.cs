@@ -23,11 +23,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabOrderDTO>> GetLabOrderByID(int id)
         {
             Result<LabOrderDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddLabOrder")]
@@ -37,11 +37,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabOrderDTO>> AddLabOrder(LabOrderDTO labOrderDTO)
         {
             Result<int> result = await _service._AddNewLabOrderAsync(labOrderDTO);  
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabOrderByID", new { id = result.data }, labOrderDTO);
+                return CreatedAtRoute("GetLabOrderByID", new { id = result.Data }, labOrderDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateLabOrder")]
@@ -52,9 +52,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabOrderDTO>> UpdateLabOrder(int id, [FromBody] LabOrderDTO labOrderDTO)
         {
             Result<int> result = await _service._UpdateLabOrderAsync(labOrderDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(labOrderDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteLabOrder")]
@@ -65,11 +65,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabOrder(int id)
         {
             Result<bool> result = await _service.DeleteLabOrderAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabOrder with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

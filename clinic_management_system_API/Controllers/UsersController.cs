@@ -36,11 +36,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<UserPublicDTO>> GetUserByID(int id)
         {
             Result<UserDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(new UserPublicDTO(result.data));
+                return Ok(new UserPublicDTO(result.Data));
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -54,11 +54,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<UserPublicDTO>> GetUser([FromQuery] string email)
         {
             Result<UserDTO> result = await _service.FindAsync(email);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(new UserPublicDTO(result.data));
+                return Ok(new UserPublicDTO(result.Data));
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
         [Authorize]
         [HttpGet("me")]
@@ -77,11 +77,11 @@ namespace clinic_management_system_API.Controllers
             int CurrentUserId = int.Parse(userIdClaim);
 
             Result<ResponseProfileDTO> result = await _profileAggregatorService.GetReponseProfileAsync(CurrentUserId);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles =("Admin,SuperAdmin"))]
@@ -100,11 +100,11 @@ namespace clinic_management_system_API.Controllers
             ToggleRoleStatusDTO toggleRoleStatusDTO = new ToggleRoleStatusDTO(userId, roleId, roleStatusDTO.isActive);
 
             Result<bool> result = await _service.ToggleStatusAsync(toggleRoleStatusDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.message);
+                return Ok(result.Message);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = ("Admin,SuperAdmin"))]
@@ -126,11 +126,11 @@ namespace clinic_management_system_API.Controllers
             
 
             Result<List<RolesForUserDTO>> result = await _userRoleService.GetAllRolesInfoAsync(userId);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         
@@ -145,11 +145,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<ResponseProfileDTO>> AssignNewRole(CreateUserRoleResquestDTO createUserRoleResquestDTO)
         {
             Result<bool> result = await _service.AssignNewRoleAsync(createUserRoleResquestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.message);
+                return Ok(result.Message);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles ="SuperAdmin")]
@@ -164,11 +164,11 @@ namespace clinic_management_system_API.Controllers
             createUserRequestDTO.CreateUserDTO.createUserRoleDTO.roleId = (int) Roles.Admin;
 
             Result< int> result = await _service.CreateAdmin(createUserRequestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetUserByID", new { id = result.data }, createUserRequestDTO);
+                return CreatedAtRoute("GetUserByID", new { id = result.Data }, createUserRequestDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "SuperAdmin, Admin")]
@@ -188,9 +188,9 @@ namespace clinic_management_system_API.Controllers
                 
 
             Result<bool> result = await _service.UpdateUserAsync(updateUserDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateUserDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "SuperAdmin, Admin")]
@@ -209,9 +209,9 @@ namespace clinic_management_system_API.Controllers
             updateDTO.Id = (int)currentUserId;
 
             Result<bool> result = await _service.UpdateUserAsync(updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "SuperAdmin, Admin")]
@@ -223,11 +223,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteUser(int id)
         {
             Result<bool> result = await _service.DeleteUserAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"User with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

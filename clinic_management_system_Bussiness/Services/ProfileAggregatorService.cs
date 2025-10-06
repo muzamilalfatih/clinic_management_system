@@ -31,10 +31,12 @@ namespace clinic_management_system_Bussiness
             _personService = personService;
             _labTechnicianService = labTechnicianService;
         }
-        private Result<T> _createFailReponse<T>(string message, int code, T data)
+        
+        private Result<T> _createFailReponse<T>(ResponseMessage message, int code, T data)
         {
             return new Result<T>(false, message, data, code);
         }
+
         public async Task<Result<ResponseProfileDTO>> GetReponseProfileAsync(int userId)
         {
             Result<DoctorProfileDTO> doctorReult = null;
@@ -43,38 +45,38 @@ namespace clinic_management_system_Bussiness
 
 
             Result<UserProfileDTO> userResult = await _userService.GetProfileAsync(userId);
-            if (!userResult.success)
-                return _createFailReponse<ResponseProfileDTO>(userResult.message, userResult.errorCode, null);
+            if (!userResult.Success)
+                return _createFailReponse<ResponseProfileDTO>(userResult.Message, userResult.ErrorCode, null);
 
-            foreach (UserRoleInfoDTO role in userResult.data.roles)
+            foreach (UserRoleInfoDTO role in userResult.Data.roles)
             {
                 if (role.roleName.Equals("Doctor",StringComparison.OrdinalIgnoreCase))
                 {
                     doctorReult = await _doctorService.GetProfileAsync(userId);
-                    if (!doctorReult.success)
-                        return _createFailReponse<ResponseProfileDTO>(doctorReult.message, doctorReult.errorCode, null);
+                    if (!doctorReult.Success)
+                        return _createFailReponse<ResponseProfileDTO>(doctorReult.Message, doctorReult.ErrorCode, null);
                 }
                 if (role.roleName.Equals("Patient", StringComparison.OrdinalIgnoreCase))
                 {
                     patientResult = await _patientService.GetProfileAsync(userId);
-                    if (!patientResult.success)
-                        return _createFailReponse<ResponseProfileDTO>(patientResult.message, patientResult.errorCode, null);
+                    if (!patientResult.Success)
+                        return _createFailReponse<ResponseProfileDTO>(patientResult.Message, patientResult.ErrorCode, null);
                 }
                 if (role.roleName.Equals("LabTechnical", StringComparison.OrdinalIgnoreCase))
                 {
                      technicianProfileResult = await _labTechnicianService.GetProfile(userId);
-                    if (!technicianProfileResult.success)
-                        return _createFailReponse<ResponseProfileDTO>(technicianProfileResult.message, technicianProfileResult.errorCode, null);
+                    if (!technicianProfileResult.Success)
+                        return _createFailReponse<ResponseProfileDTO>(technicianProfileResult.Message, technicianProfileResult.ErrorCode, null);
 
                 }
             }
             
 
             Result<PersonProfileDTO> personResult = await _personService.GetProfileAsync(userId);
-            if (!personResult.success)
-                return _createFailReponse<ResponseProfileDTO>(personResult.message, personResult.errorCode, null);
+            if (!personResult.Success)
+                return _createFailReponse<ResponseProfileDTO>(personResult.Message, personResult.ErrorCode, null);
 
-            ResponseProfileDTO responseProfileDTO = new ResponseProfileDTO(userResult.data, personResult.data, patientResult?.data, doctorReult?.data,technicianProfileResult?.data);
+            ResponseProfileDTO responseProfileDTO = new ResponseProfileDTO(userResult.Data, personResult.Data, patientResult?.Data, doctorReult?.Data,technicianProfileResult?.Data);
             return new Result<ResponseProfileDTO>(true, "Profile response", responseProfileDTO);
         }
     }

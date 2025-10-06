@@ -29,11 +29,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PatientDTO>> GetPatientByID(int id)
         {
             Result<PatientDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -46,11 +46,11 @@ namespace clinic_management_system_API.Controllers
             createPatientRequestDTO.userDTO.CreateUserDTO.createUserRoleDTO.roleId = (int) Roles.Patient;
 
             Result<int> result = await _service.AddNewPatientAsync(createPatientRequestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPatientByID", new { id = result.data }, createPatientRequestDTO);
+                return CreatedAtRoute("GetPatientByID", new { id = result.Data }, createPatientRequestDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 
@@ -72,11 +72,11 @@ namespace clinic_management_system_API.Controllers
 
 
             Result<int> result = await _service.AddNewPatientAsync((int)currentUserId, patientDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPatientByID", new { id = result.data }, patientDTO);
+                return CreatedAtRoute("GetPatientByID", new { id = result.Data }, patientDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
         [AllowAnonymous]
         [HttpPost("register")]
@@ -88,11 +88,11 @@ namespace clinic_management_system_API.Controllers
         {
             createPatientRequestDTO.userDTO.CreateUserDTO.createUserRoleDTO.roleId = 9;
             Result<int> result = await _service.AddNewPatientAsync(createPatientRequestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPatientByID", new { id = result.data }, createPatientRequestDTO);
+                return CreatedAtRoute("GetPatientByID", new { id = result.Data }, createPatientRequestDTO);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
         [Authorize(Roles= "Admin, SuperAdmin")]
         [HttpPut("{id}")]
@@ -104,9 +104,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<bool> result = await _service.UpdatePatientAsync(UpdateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(UpdateDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "Patient")]
@@ -122,9 +122,9 @@ namespace clinic_management_system_API.Controllers
                 return Unauthorized("Missing user ID in token");
 
             Result<bool> result = await _service.UpdatePatientAsync((int) currentUserId,  updateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(updateDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles ="Admin,SupderAdmin")]
@@ -137,11 +137,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeletePatient(int id)
         {
             Result<bool> result = await _service.DeletePatientAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Patient with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

@@ -28,11 +28,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<BillInfoDTO>> GetBillByID(int id)
         {
             Result<BillInfoDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteBill")]
@@ -43,11 +43,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteBill(int id)
         {
             Result<bool> result = await _service.DeleteBillAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Bill with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

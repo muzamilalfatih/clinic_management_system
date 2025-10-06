@@ -54,17 +54,21 @@ namespace clinic_management_system_Bussiness
         {
             return new Result<T>(false, message, data, code);
         }
+        private Result<T> _createFailReponse<T>(ResponseMessage message, int code, T data)
+        {
+            return new Result<T>(false, message, data, code);
+        }
         public async Task<Result<int>> CreateUserAsync(CreateUserRequestDTO createUserRequest, SqlConnection conn, SqlTransaction tran)
         {
             Result<bool> emaiExistenceResult = await _repo.IsUserExistByEmail(createUserRequest.CreateUserDTO.email);
-            if (!emaiExistenceResult.success)
-                return _createFailReponse<int>(emaiExistenceResult.message, emaiExistenceResult.errorCode, -1);
-            if (emaiExistenceResult.data)
+            if (!emaiExistenceResult.Success)
+                return _createFailReponse<int>(emaiExistenceResult.Message, emaiExistenceResult.ErrorCode, -1);
+            if (emaiExistenceResult.Data)
                 return _createFailReponse<int>("This person already has an account!", 400, -1);
             Result<bool> usernameExistenceReuslt = await _repo.IsUserExistByUserName(createUserRequest.CreateUserDTO.email);
-            if (!usernameExistenceReuslt.success)
-                return _createFailReponse<int>(usernameExistenceReuslt.message, usernameExistenceReuslt.errorCode, -1);
-            if (usernameExistenceReuslt.data)
+            if (!usernameExistenceReuslt.Success)
+                return _createFailReponse<int>(usernameExistenceReuslt.Message, usernameExistenceReuslt.ErrorCode, -1);
+            if (usernameExistenceReuslt.Data)
                 return _createFailReponse<int>("This user name is userd by another person!", 409, -1);
 
 
@@ -82,7 +86,7 @@ namespace clinic_management_system_Bussiness
                     tran = conn.BeginTransaction();
 
                     Result<int> userResult = await CreateUserAsync(createUserRequestDTO, conn, tran);
-                    if (!userResult.success)
+                    if (!userResult.Success)
                     {
                         tran?.Rollback();
                         return userResult;
@@ -102,23 +106,23 @@ namespace clinic_management_system_Bussiness
         private async Task<Result<int>> _handleNewUserAsync(CreateUserRequestDTO createUserRequestDTO, SqlConnection conn, SqlTransaction tran)
         {
             Result<int> personResult = await _personService.AddNewPerson(createUserRequestDTO.CreatePersonDTO, conn, tran);
-            if (!personResult.success)
+            if (!personResult.Success)
             {
-                return _createFailReponse<int>(personResult.message, personResult.errorCode, -1);
+                return _createFailReponse<int>(personResult.Message, personResult.ErrorCode, -1);
             }
 
-            createUserRequestDTO.CreateUserDTO.personId = personResult.data;
+            createUserRequestDTO.CreateUserDTO.personId = personResult.Data;
 
             createUserRequestDTO.CreateUserDTO.password= _passwordSerivce.HashPaword(createUserRequestDTO.CreateUserDTO.password);
 
             Result<int> userResult = await _repo.AddNewUserAsync(createUserRequestDTO.CreateUserDTO, conn, tran);
-            if (userResult.success)
+            if (userResult.Success)
             {
-                createUserRequestDTO.CreateUserDTO.createUserRoleDTO.userId = userResult.data;
+                createUserRequestDTO.CreateUserDTO.createUserRoleDTO.userId = userResult.Data;
                 Result<int> saveResult = await _userRoleService.AddNewUserRoleAsync(createUserRequestDTO.CreateUserDTO.createUserRoleDTO, conn, tran);
-                if (!saveResult.success)
+                if (!saveResult.Success)
                 {
-                    return _createFailReponse<int>(saveResult.message, saveResult.errorCode, -1);
+                    return _createFailReponse<int>(saveResult.Message, saveResult.ErrorCode, -1);
                 }
                 
                 return userResult;
@@ -141,10 +145,10 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> AssignNewRoleAsync(CreateUserRoleResquestDTO createUserRoleResquestDTO)
         {
             Result<List<UserRoleDTO>> userRolesResult = await _userRoleService.GetAllUserRolesAsync(createUserRoleResquestDTO.email);
-            if (!userRolesResult.success)
-                return _createFailReponse<bool>(userRolesResult.message, userRolesResult.errorCode, false);
+            if (!userRolesResult.Success)
+                return _createFailReponse<bool>(userRolesResult.Message, userRolesResult.ErrorCode, false);
 
-            List<int> existingRoles = userRolesResult.data.Select(r => r.roleId).ToList();
+            List<int> existingRoles = userRolesResult.Data.Select(r => r.roleId).ToList();
 
             if (existingRoles.Contains(createUserRoleResquestDTO.createUserRoleDTO.roleId))
                 return _createFailReponse<bool>("This user already has this role.", 400, false);
@@ -157,7 +161,7 @@ namespace clinic_management_system_Bussiness
             if (isNewRoleNonPatient && nonPatientRolesCount >= 1)
                 return _createFailReponse<bool>("User cannot have more than one non-Patient role.", 400, false);
 
-            createUserRoleResquestDTO.createUserRoleDTO.userId = userRolesResult.data[0].userId;
+            createUserRoleResquestDTO.createUserRoleDTO.userId = userRolesResult.Data[0].userId;
 
             return await _userRoleService.AddNewUserRoleAsync(createUserRoleResquestDTO.createUserRoleDTO);
 
@@ -165,12 +169,12 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> AssignNewRoleAsync( CreateUserRoleDTO createUserRoleDTO)
         {
             Result<List<UserRoleDTO>> userRolesResult = await _userRoleService.GetAllUserRolesAsync(createUserRoleDTO.userId);
-            if (!userRolesResult.success)
-                return _createFailReponse<bool>(userRolesResult.message, userRolesResult.errorCode, false);
+            if (!userRolesResult.Success)
+                return _createFailReponse<bool>(userRolesResult.Message, userRolesResult.ErrorCode, false);
 
-            List<int> existingRoles = userRolesResult.data.Select(r => r.roleId).ToList();
+            List<int> existingRoles = userRolesResult.Data.Select(r => r.roleId).ToList();
 
-            int userId = userRolesResult.data[0].userId;
+            int userId = userRolesResult.Data[0].userId;
             if (existingRoles.Contains(createUserRoleDTO.roleId))
                 return _createFailReponse<bool>("This user already has this role.", 400, false);
 

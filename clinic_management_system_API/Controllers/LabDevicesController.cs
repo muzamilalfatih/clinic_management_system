@@ -32,11 +32,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabDeviceDTO>> GetLabDevicetByID(int id)
         {
             Result<LabDeviceDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         //[Authorize(Roles = "Admin,SuperAdmin")]
@@ -59,11 +59,11 @@ namespace clinic_management_system_API.Controllers
             else
                 result = await _service.FindAsync(name);
            
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -77,11 +77,11 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<int> result = await _service.AddNewAsync(createDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabDeviceByID", new { id = result.data }, createDTO);
+                return CreatedAtRoute("GetLabDeviceByID", new { id = result.Data }, createDTO);
             }
-            return StatusCode(result.errorCode, new {Message =  result.message});
+            return StatusCode(result.ErrorCode, new {Message =  result.Message});
         }
 
 
@@ -98,9 +98,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<bool> result = await _service.UpdateAsync(UpdateDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(UpdateDTO);
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
        

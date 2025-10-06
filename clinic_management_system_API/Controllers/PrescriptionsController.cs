@@ -23,11 +23,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PrescriptionDTO>> GetPrescriptionByID(int id)
         {
             Result<PrescriptionDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddPrescription")]
@@ -38,11 +38,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PrescriptionDTO>> AddPrescription(PrescriptionDTO prescriptionDTO)
         {
             Result<int> result = await _service.AddNewPrescriptionAsync(prescriptionDTO); 
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPrescriptionByID", new { id = result.data }, prescriptionDTO);
+                return CreatedAtRoute("GetPrescriptionByID", new { id = result.Data }, prescriptionDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
         [Authorize(Roles = "Doctor")]
         [HttpPut("{id}", Name = "UpdatePrescription")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PrescriptionDTO>> UpdatePrescription(int id, [FromBody] PrescriptionDTO prescriptionDTO)
         {
             Result<int> result = await _service.UpdatePrescriptionAsync(prescriptionDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(prescriptionDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
         [Authorize(Roles = "Admin,Doctor")]
         [HttpDelete("{id}", Name = "DeletePrescription")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeletePrescription(int id)
         {
             Result<bool> result = await _service.DeletePrescriptionAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Prescription with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

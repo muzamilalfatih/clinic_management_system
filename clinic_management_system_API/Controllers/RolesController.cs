@@ -24,11 +24,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<RoleDTO>> GetRoleByID(int id)
         {
             Result<RoleDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddRole")]
@@ -38,11 +38,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<RoleDTO>> AddRole(RoleDTO roleDTO)
         {
             Result<int> result = await _service.AddNewRoleAsync(roleDTO);  
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetRoleByID", new { id = result.data }, roleDTO);
+                return CreatedAtRoute("GetRoleByID", new { id = result.Data }, roleDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateRole")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<RoleDTO>> UpdateRole(int id, [FromBody] RoleDTO roleDTO)
         {
             Result<int> result = await _service.UpdateRoleAsync(roleDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(roleDTO );
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteRole")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteRole(int id)
         {
             Result<bool> result = await _service.DeleteRoleAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Role with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

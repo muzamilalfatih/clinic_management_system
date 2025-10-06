@@ -51,18 +51,18 @@ namespace clinic_management_system_Bussiness
                     tran = conn.BeginTransaction();
 
                     Result<int> userResult = await _userSerivce.CreateUserAsync(createDoctorRequestDTO.userDTO, conn, tran);
-                    if (!userResult.success)
+                    if (!userResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(userResult.message, userResult.errorCode);
+                        return CreateFailResponse(userResult.Message, userResult.ErrorCode);
                     }
-                    createDoctorRequestDTO.dotorDTO.userId = userResult.data;
+                    createDoctorRequestDTO.dotorDTO.userId = userResult.Data;
 
                     Result<int> doctorResult = await _repo.AddNewDoctorAsync(createDoctorRequestDTO.dotorDTO, conn, tran);
-                    if (!doctorResult.success)
+                    if (!doctorResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(doctorResult.message, doctorResult.errorCode);
+                        return CreateFailResponse(doctorResult.Message, doctorResult.ErrorCode);
                     }
 
                     tran.Commit();
@@ -81,10 +81,10 @@ namespace clinic_management_system_Bussiness
         {
             Result<int> getIdResult = await _repo.GetIdAsync(userId);
 
-            if (!getIdResult.success)
-                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
+            if (!getIdResult.Success)
+                return new Result<bool>(false, getIdResult.Message, false, getIdResult.ErrorCode);
 
-            updateDoctorDTO.Id = getIdResult.data;
+            updateDoctorDTO.Id = getIdResult.Data;
 
             return await _repo.UpdateDoctorAsync(updateDoctorDTO);
         }
@@ -93,7 +93,7 @@ namespace clinic_management_system_Bussiness
             return await _repo.UpdateDoctorAsync(updateDoctorDTO);
         }
 
-        private static Result<int> CreateFailResponse(string message, int errorCode)
+        private static Result<int> CreateFailResponse(ResponseMessage message, int errorCode)
         {
             return new Result<int>(false, message, -1, errorCode);
         }

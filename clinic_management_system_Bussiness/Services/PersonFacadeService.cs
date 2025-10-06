@@ -23,10 +23,10 @@ namespace clinic_management_system_Bussiness.Services
         public async Task<Result<bool>> UpdatePersonAsync(int userId, UpdatePersonDTO updateDTO)
         {
             Result<int> getIdResult = await _userService.GetPersonIdAsync(userId);
-            if (!getIdResult.success)
-                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
+            if (!getIdResult.Success)
+                return new Result<bool>(false, getIdResult.Message, false, getIdResult.ErrorCode);
 
-            updateDTO.id = getIdResult.data;
+            updateDTO.id = getIdResult.Data;
 
             return await _personService.UpdatePersonAsync(updateDTO);  
         }

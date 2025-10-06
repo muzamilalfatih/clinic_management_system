@@ -30,28 +30,32 @@ namespace clinic_management_system_Bussiness
         {
             return new Result<LoginResponseDTO>(false, message, null, errorCode);
         }
+        private Result<LoginResponseDTO> createFailResponse(ResponseMessage message, int errorCode)
+        {
+            return new Result<LoginResponseDTO>(false, message, null, errorCode);
+        }
         public async Task<Result<LoginResponseDTO>> Login(LoginDTO loginDTO)
         {
             Result<UserDTO> result = await _service.FindAsync(loginDTO.email);
-            if (!result.success)
+            if (!result.Success)
             {
-                if (result.errorCode == 404)
+                if (result.ErrorCode == 404)
                     return createFailResponse("Invalid email/password", 401);
-                return createFailResponse(result.message,result.errorCode);
+                return createFailResponse(result.Message,result.ErrorCode);
             }
 
-            if (result.data.roles.All(role  => !role.isActive)) 
+            if (result.Data.roles.All(role  => !role.isActive)) 
                 return createFailResponse("User disabled!", 401);
 
-            if (!_passwordSerive.VerifyPassword(result.data.password,loginDTO.password))
+            if (!_passwordSerive.VerifyPassword(result.Data.password,loginDTO.password))
                 return createFailResponse("Invalid email/password", 401);
 
-            string token = Utility.GenerateJwtToken(result.data);
-            Result<PersonDTO> findPersonResult = await _personService.FindAsync(result.data.personId);
-            if (!findPersonResult.success)
-                return createFailResponse(findPersonResult.message, result.errorCode);
+            string token = Utility.GenerateJwtToken(result.Data);
+            Result<PersonDTO> findPersonResult = await _personService.FindAsync(result.Data.personId);
+            if (!findPersonResult.Success)
+                return createFailResponse(findPersonResult.Message, result.ErrorCode);
 
-            LoggedUserDTO user = new LoggedUserDTO(result.data.id, _personService.GetDualName(findPersonResult.data),result.data.email, result.data.userName, result.data.roles);
+            LoggedUserDTO user = new LoggedUserDTO(result.Data.id, _personService.GetDualName(findPersonResult.Data),result.Data.email, result.Data.userName, result.Data.roles);
             
             return new Result<LoginResponseDTO>(true, "Login successfully!", new LoginResponseDTO(token, user));
         }

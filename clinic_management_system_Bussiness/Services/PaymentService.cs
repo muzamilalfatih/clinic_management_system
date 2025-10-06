@@ -30,15 +30,15 @@ namespace clinic_management_system_Bussiness
         {
 
             Result<bool> isPaidResult = await _billService.IsPaid(makePaymentDTO.BillId);
-            if (!isPaidResult.success)
-                return new Result<bool>(false, isPaidResult.message, false, isPaidResult.errorCode);
-            if (isPaidResult.data)
+            if (!isPaidResult.Success)
+                return new Result<bool>(false, isPaidResult.Message, false, isPaidResult.ErrorCode);
+            if (isPaidResult.Data)
                 return new Result<bool>(false, "This bill already paid", false, 400);
 
             Result<decimal> amountResult = await _billService.GetAmount(makePaymentDTO.BillId);
-            if (!amountResult.success)
+            if (!amountResult.Success)
             {
-                return new Result<bool>(false, amountResult.message, false, amountResult.errorCode);
+                return new Result<bool>(false, amountResult.Message, false, amountResult.ErrorCode);
             }
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -51,26 +51,26 @@ namespace clinic_management_system_Bussiness
 
                     
 
-                    AddNewPaymentDTO addNew = new AddNewPaymentDTO(makePaymentDTO, amountResult.data);
+                    AddNewPaymentDTO addNew = new AddNewPaymentDTO(makePaymentDTO, amountResult.Data);
 
                     Result<bool> payResult = await _repo.AddNewPaymentAsync(addNew, conn, tran);
-                    if (!payResult.success)
+                    if (!payResult.Success)
                     {
                         tran.Rollback();
-                        return new Result<bool>(false, payResult.message, false, payResult.errorCode);
+                        return new Result<bool>(false, payResult.Message, false, payResult.ErrorCode);
                     }
                     Result<bool> billStatusResult = await _billService.Pay(addNew.BillId, conn, tran);
-                    if (!billStatusResult.success)
+                    if (!billStatusResult.Success)
                     {
                         tran.Rollback();
-                        return new Result<bool>(false, billStatusResult.message, false, billStatusResult.errorCode);
+                        return new Result<bool>(false, billStatusResult.Message, false, billStatusResult.ErrorCode);
                     }
 
                     Result<bool> appointmentStatusResult = await _appointmentService.ChangeStatus(addNew.BillId, AppointmentStatus.Confirm, conn, tran);
-                    if (!appointmentStatusResult.success)
+                    if (!appointmentStatusResult.Success)
                     {
                         tran.Rollback();
-                        return new Result<bool>(false, appointmentStatusResult.message, false, appointmentStatusResult.errorCode);
+                        return new Result<bool>(false, appointmentStatusResult.Message, false, appointmentStatusResult.ErrorCode);
                     }
                     tran.Commit();
                     return payResult;

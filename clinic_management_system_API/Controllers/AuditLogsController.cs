@@ -22,11 +22,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<AuditLogDTO>> GetAuditLogByID(int id)
         {
             Result<AuditLogDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
      }

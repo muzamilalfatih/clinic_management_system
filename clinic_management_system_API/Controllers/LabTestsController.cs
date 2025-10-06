@@ -24,11 +24,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTestDTO>> GetLabTestByID(int id)
         {
             Result<LabTestDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddLabTest")]
@@ -38,11 +38,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTestDTO>> AddLabTest(LabTestDTO labTestDTO)
         {
             Result<int> result = await _service.AddNewLabTestAsync(labTestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetLabTestByID", new { id = result.data }, labTestDTO);
+                return CreatedAtRoute("GetLabTestByID", new { id = result.Data }, labTestDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdateLabTest")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<LabTestDTO>> UpdateLabTest(int id, [FromBody] LabTestDTO labTestDTO)
         {
             Result<int> result = await _service.UpdateLabTestAsync(labTestDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(labTestDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeleteLabTest")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteLabTest(int id)
         {
             Result<bool> result = await _service.DeleteLabTestAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"LabTest with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

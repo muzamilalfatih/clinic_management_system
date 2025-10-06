@@ -41,11 +41,11 @@ namespace clinic_management_system_API.Controllers
         {
             
             Result<DoctorDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpGet(Name = "GetDoctors")]
@@ -57,11 +57,11 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<List<DoctorInfoDTO>> result = await _service.GetDoctorsAsync(filter);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -76,11 +76,11 @@ namespace clinic_management_system_API.Controllers
             createDoctorRequestDTO.userDTO.CreateUserDTO.createUserRoleDTO.roleId = (int)Roles.Doctor;
 
             Result<int> result = await _service.CreateDoctor(createDoctorRequestDTO);
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetDoctorByID", new { id = result.data }, createDoctorRequestDTO);
+                return CreatedAtRoute("GetDoctorByID", new { id = result.Data }, createDoctorRequestDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles ="Doctor")]
@@ -99,8 +99,8 @@ namespace clinic_management_system_API.Controllers
 
             Result<bool> result = await _service.UpdateDoctor((int)currentUserId, updateDTO);
 
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
             return Ok(updateDTO);
         }
 
@@ -116,8 +116,8 @@ namespace clinic_management_system_API.Controllers
         {   
             Result<bool> result = await _service.UpdateDoctor(update);
 
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
             return Ok(update);
         }
 
@@ -130,11 +130,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteDoctor(int id)
         {
             Result<bool> result = await _service.DeleteDoctorAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"Doctor with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
         [Authorize(Roles = "Doctor")]
         [HttpGet("me/availabilities")]
@@ -153,15 +153,15 @@ namespace clinic_management_system_API.Controllers
                 return Unauthorized("Missing user ID in token");
             }
             Result<int> GetIdResult = await _service.GetDoctorIdAsync((int) userId);
-            if (!GetIdResult.success)
-                return StatusCode(GetIdResult.errorCode, GetIdResult.message);
+            if (!GetIdResult.Success)
+                return StatusCode(GetIdResult.ErrorCode, GetIdResult.Message);
 
-            Result<List<AvailabilityInfoDTO>> allAvailabilitiesResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(GetIdResult.data);
-            if (allAvailabilitiesResult.success)
+            Result<List<AvailabilityInfoDTO>> allAvailabilitiesResult = await _availabilityService.GetAllDoctorAvailabiltiesAsync(GetIdResult.Data);
+            if (allAvailabilitiesResult.Success)
             {
-                return Ok(allAvailabilitiesResult.data);
+                return Ok(allAvailabilitiesResult.Data);
             }
-            return StatusCode(allAvailabilitiesResult.errorCode, allAvailabilitiesResult.message);
+            return StatusCode(allAvailabilitiesResult.ErrorCode, allAvailabilitiesResult.Message);
         }
         [Authorize(Roles = "Doctor")]
         [HttpPost("me/avilabilities")]
@@ -178,16 +178,16 @@ namespace clinic_management_system_API.Controllers
                 return Unauthorized("Missing user ID in token");
             }
             Result<int> GetIdResult = await _service.GetDoctorIdAsync((int)userId);
-            if (!GetIdResult.success)
-                return StatusCode(GetIdResult.errorCode, GetIdResult.message);
+            if (!GetIdResult.Success)
+                return StatusCode(GetIdResult.ErrorCode, GetIdResult.Message);
                
 
-            Result<bool> result = await _availabilityService.CreateAvailabiltiesAsync(GetIdResult.data, createAvailabilitiesDTO);
-            if (result.success)
+            Result<bool> result = await _availabilityService.CreateAvailabiltiesAsync(GetIdResult.Data, createAvailabilitiesDTO);
+            if (result.Success)
             {
-                return Ok(result.message);
+                return Ok(result.Message);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
         [Authorize(Roles = "Doctor")]
@@ -203,9 +203,9 @@ namespace clinic_management_system_API.Controllers
 
             Result<bool> result = await _availabilityService.UpdateAvailabilityAsync(update);
 
-            if (!result.success)
-                return StatusCode(result.errorCode, result.message);
-            return Ok(result.message);
+            if (!result.Success)
+                return StatusCode(result.ErrorCode, result.Message);
+            return Ok(result.Message);
         }
 
 
@@ -220,11 +220,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeleteDoctorAvailability(int id)
         {
             Result<bool> result = await _availabilityService.DeleteAvailabilityAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.message);
+                return Ok(result.Message);
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
     }
 }

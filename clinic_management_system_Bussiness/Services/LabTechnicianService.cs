@@ -44,18 +44,18 @@ namespace clinic_management_system_Bussiness
                     tran = conn.BeginTransaction();
 
                     Result<int> userResult = await _userSerivce.CreateUserAsync(createLabTechnicianRequestDTO.UserDTO, conn, tran);
-                    if (!userResult.success)
+                    if (!userResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(userResult.message, userResult.errorCode);
+                        return CreateFailResponse(userResult.Message, userResult.ErrorCode);
                     }
-                    createLabTechnicianRequestDTO.LabTechnicianDTO.UserId = userResult.data;
+                    createLabTechnicianRequestDTO.LabTechnicianDTO.UserId = userResult.Data;
 
                     Result<int> labTechnicianResult = await _repo.AddNewLabTechnicianAsync(createLabTechnicianRequestDTO.LabTechnicianDTO, conn, tran);
-                    if (!labTechnicianResult.success)
+                    if (!labTechnicianResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(labTechnicianResult.message, labTechnicianResult.errorCode);
+                        return CreateFailResponse(labTechnicianResult.Message, labTechnicianResult.ErrorCode);
                     }
 
                     tran.Commit();
@@ -73,9 +73,9 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> UpdateLabTechnicianAsync(int userId, UpdateLabTechnicianDTO updateDTO)
         {
             Result<int> getIdResult = await _repo.GetIdAsync(userId);
-            if (!getIdResult.success)
-                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
-            updateDTO.Id = getIdResult.data;
+            if (!getIdResult.Success)
+                return new Result<bool>(false, getIdResult.Message, false, getIdResult.ErrorCode);
+            updateDTO.Id = getIdResult.Data;
             return await _repo.UpdateLabTechnicianAsync(updateDTO);
         }
         public async Task<Result<bool>> UpdateLabTechnicianAsync(UpdateLabTechnicianDTO updateDTO)
@@ -89,6 +89,10 @@ namespace clinic_management_system_Bussiness
                 return new Result<bool>(false, "The request is invalid. Please check the input and try again.", false, 400);
             }
             return await _repo.DeleteLabTechnicianAsync(id);
+        }
+        private Result<int> CreateFailResponse(ResponseMessage message, int errorCode)
+        {
+            return new Result<int>(false, message, -1, errorCode);
         }
         private Result<int> CreateFailResponse(string message, int errorCode)
         {

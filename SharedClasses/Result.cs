@@ -3,18 +3,25 @@ namespace SharedClasses
    
      public class Result<T>
      {
-         public bool success { get; set; }
-         public string  message { get; set; }
-         public int errorCode { get; set; }
-         public T? data { get; set; }
+         public bool Success { get; set; }
+         public ResponseMessage  Message { get; set; }
+         public int ErrorCode { get; set; }
+         public T? Data { get; set; }
          public Result(bool success, string message, T? data = default, int errorCode = 0)
          {
-             this.success = success;
-             this.message = message;
-             this.errorCode = errorCode;
-             this.data = data;
+             Success = success;
+             Message = new ResponseMessage(message);
+             ErrorCode = errorCode;
+             Data = data;
          }
-        
-     }
+        public Result(bool success, ResponseMessage message, T? data = default, int errorCode = 0)
+        {
+            Success = success;
+            Message = message;
+            ErrorCode = errorCode;
+            Data = data;
+        }
+
+    }
 
 }

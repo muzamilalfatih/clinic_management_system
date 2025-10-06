@@ -337,7 +337,11 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                                 }
                             }
 
-                            return new Result<List<DoctorInfoDTO>>(true, "Doctors retrieved successfully", doctors);
+                            if(doctors.Count() > 0)
+                                return new Result<List<DoctorInfoDTO>>(true, "Doctors retrieved successfully", doctors);
+                            else
+                                return new Result<List<DoctorInfoDTO>>(false, "No doctor found!", null, 404);
+
                         }
                     }
                     catch (Exception ex)

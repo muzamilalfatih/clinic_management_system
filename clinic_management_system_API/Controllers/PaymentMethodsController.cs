@@ -22,11 +22,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult<PaymentMethodDTO>> GetPaymentMethodByID(int id)
         {
             Result<PaymentMethodDTO> result = await _service.FindAsync(id);
-            if (result.success)
+            if (result.Success)
             {
-                return Ok(result.data);
+                return Ok(result.Data);
             }
-            return result.errorCode == 400 ? BadRequest(result.message) : NotFound(result.message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
         [HttpPost(Name = "AddPaymentMethod")]
@@ -37,11 +37,11 @@ namespace clinic_management_system_API.Controllers
         {
             
             Result<int> result = await _service.AddNewPaymentMethodAsync(paymentMethodDTO); 
-            if (result.success)
+            if (result.Success)
             {
-                return CreatedAtRoute("GetPaymentMethodByID", new { id = result.data }, paymentMethodDTO);
+                return CreatedAtRoute("GetPaymentMethodByID", new { id = result.Data }, paymentMethodDTO);
             }
-                return StatusCode(result.errorCode, result.message);
+                return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpPut("{id}", Name = "UpdatePaymentMethod")]
@@ -53,9 +53,9 @@ namespace clinic_management_system_API.Controllers
         {
 
             Result<int> result = await _service.UpdatePaymentMethodAsync(paymentMethodDTO);
-            if (result.success)
+            if (result.Success)
                 return Ok(paymentMethodDTO);
-           return StatusCode(result.errorCode, result.message);
+           return StatusCode(result.ErrorCode, result.Message);
         }
 
         [HttpDelete("{id}", Name = "DeletePaymentMethod")]
@@ -66,11 +66,11 @@ namespace clinic_management_system_API.Controllers
         public async Task<ActionResult> DeletePaymentMethod(int id)
         {
             Result<bool> result = await _service.DeletePaymentMethodAsync(id);
-            if (result.success)
+            if (result.Success)
             {
                 return Ok($"PaymentMethod with ID {id} has been deleted.");
             }
-            return StatusCode(result.errorCode, result.message);
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 

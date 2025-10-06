@@ -56,17 +56,17 @@ namespace clinic_management_system_Bussiness
 
 
                     Result<int> userResult = await _userSerivce.CreateUserAsync(createReceptionistRequestDTO.UserDTO, conn, tran);
-                    if (!userResult.success)
+                    if (!userResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(userResult.message, userResult.errorCode);
+                        return CreateFailResponse(userResult.Message, userResult.ErrorCode);
                     }
-                    createReceptionistRequestDTO.ReceptionistDTO.UserId = userResult.data;
+                    createReceptionistRequestDTO.ReceptionistDTO.UserId = userResult.Data;
                     Result<int> ReceptionistResult = await _repo.AddNewReceptionistAsync(createReceptionistRequestDTO.ReceptionistDTO, conn, tran);
-                    if (!ReceptionistResult.success)
+                    if (!ReceptionistResult.Success)
                     {
                         tran?.Rollback();
-                        return CreateFailResponse(ReceptionistResult.message, ReceptionistResult.errorCode);
+                        return CreateFailResponse(ReceptionistResult.Message, ReceptionistResult.ErrorCode);
                     }
 
                     tran?.Commit();
@@ -85,10 +85,10 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> UpdateReceptionist(int userId, UpdateReceptionistDTO updateReceptionistDTO)
         {
             Result<int> getIdResult = await _repo.GetIdAsync(userId);
-            if (!getIdResult.success)
-                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
+            if (!getIdResult.Success)
+                return new Result<bool>(false, getIdResult.Message, false, getIdResult.ErrorCode);
 
-            updateReceptionistDTO.Id = getIdResult.data;
+            updateReceptionistDTO.Id = getIdResult.Data;
 
             return await _repo.UpdateReceptionistAsync(updateReceptionistDTO);
         }
@@ -97,7 +97,7 @@ namespace clinic_management_system_Bussiness
 
             return await _repo.UpdateReceptionistAsync(updateReceptionistDTO);
         }
-        private static Result<int> CreateFailResponse(string message, int errorCode)
+        private static Result<int> CreateFailResponse(ResponseMessage message, int errorCode)
         {
             return new Result<int>(false, message, -1, errorCode);
         }

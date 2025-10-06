@@ -41,7 +41,7 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.GetProfileAsync(userId);
         }
-        private static Result<int> CreateFailResponse(string message, int errorCode)
+        private static Result<int> CreateFailResponse(ResponseMessage message, int errorCode)
         {
             return new Result<int>(false, message, -1, errorCode);
         }
@@ -57,18 +57,18 @@ namespace clinic_management_system_Bussiness
                     tran = conn.BeginTransaction();
 
                     Result<int> userResult = await _userSerivce.CreateUserAsync(createPatientRequestDTO.userDTO, conn, tran);
-                    if (!userResult.success)
+                    if (!userResult.Success)
                     {
                         tran.Rollback();
-                        return CreateFailResponse(userResult.message, userResult.errorCode);
+                        return CreateFailResponse(userResult.Message, userResult.ErrorCode);
                     }
-                    createPatientRequestDTO.patientDTO.userId = userResult.data;
+                    createPatientRequestDTO.patientDTO.userId = userResult.Data;
 
                     Result<int> patientResult = await _repo.AddNewPatientAsync(createPatientRequestDTO.patientDTO, conn, tran);
-                    if (!patientResult.success)
+                    if (!patientResult.Success)
                     {
                         tran.Rollback();
-                        return CreateFailResponse(patientResult.message, patientResult.errorCode);
+                        return CreateFailResponse(patientResult.Message, patientResult.ErrorCode);
                     }
                     tran.Commit();
                     return patientResult;
@@ -95,13 +95,13 @@ namespace clinic_management_system_Bussiness
                     tran = conn.BeginTransaction();
 
                     Result<int> roleResult = await _userRoleService.AddNewUserRoleAsync(createRoleDTO, conn, tran);
-                    if (!roleResult.success)
+                    if (!roleResult.Success)
                     {
                         tran.Rollback();
-                        return new Result<int>(false, roleResult.message, -1, roleResult.errorCode);
+                        return new Result<int>(false, roleResult.Message, -1, roleResult.ErrorCode);
                     }
                     Result<int> patientResult = await _repo.AddNewPatientAsync(userId, patientDTO, conn, tran);
-                    if (!patientResult.success)
+                    if (!patientResult.Success)
                     {
                         tran.Rollback();
                         return patientResult;
@@ -127,9 +127,9 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> UpdatePatientAsync(int userId, UpdatePatientDTO updateDTO)
         {
             Result<int> getIdResult = await _repo.GetIdAsync(userId);
-            if (!getIdResult.success)
-                return new Result<bool>(false, getIdResult.message, false, getIdResult.errorCode);
-            updateDTO.Id = getIdResult.data;
+            if (!getIdResult.Success)
+                return new Result<bool>(false, getIdResult.Message, false, getIdResult.ErrorCode);
+            updateDTO.Id = getIdResult.Data;
 
             return await _repo.UpdatePatientAsync(updateDTO);
         }
