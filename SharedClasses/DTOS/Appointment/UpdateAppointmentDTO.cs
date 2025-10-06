@@ -9,7 +9,8 @@ namespace SharedClasses.DTOS.Appointment
 {
     public class UpdateAppointmentDTO
     {
-        public UpdateAppointmentDTO(int id, int doctorId, decimal fee, DateTime date, string? notes, int? parentAppointmentId)
+        public UpdateAppointmentDTO(int id, int doctorId, decimal fee, DateTime date,
+            string? notes, int? parentAppointmentId, string? symptoms, string? diagnoses)
         {
             Id = id;
             DoctorId = doctorId;
@@ -17,7 +18,10 @@ namespace SharedClasses.DTOS.Appointment
             Date = date;
             Notes = notes;
             ParentAppointmentId = parentAppointmentId;
+            Symptoms = symptoms;
+            Diagnoses = diagnoses;
         }
+
         [Required(ErrorMessage = "Appointment Id is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "Appointment Id must be greater than 0.")]
         public int Id { get; set; }
@@ -39,5 +43,7 @@ namespace SharedClasses.DTOS.Appointment
 
         [Range(1, int.MaxValue, ErrorMessage = "Parent Appointment Id must be greater than 0.")]
         public int? ParentAppointmentId { get; set; }
+        public string? Symptoms { get; set; }
+        public string? Diagnoses { get; set; }
     }
 }

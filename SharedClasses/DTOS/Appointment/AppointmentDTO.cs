@@ -10,8 +10,8 @@ namespace SharedClasses.DTOS.Appointment
 {
     public class AppointmentDTO
     {
-        public AppointmentDTO(int id, int patientId, int doctorId, 
-            decimal fee, int billId, DateTime date, AppointmentStatus status, string? notes, int? parentAppoinmentId)
+        public AppointmentDTO(int id, int patientId, int doctorId, decimal fee, int? billId, DateTime date, AppointmentStatus status,
+            string? notes, string? symptoms, string? diagnoses, int? parentAppointmentId)
         {
             Id = id;
             PatientId = patientId;
@@ -21,7 +21,9 @@ namespace SharedClasses.DTOS.Appointment
             Date = date;
             Status = status;
             Notes = notes;
-            ParentAppointmentId = parentAppoinmentId;
+            Symptoms = symptoms;
+            Diagnoses = diagnoses;
+            ParentAppointmentId = parentAppointmentId;
         }
 
         [Required(ErrorMessage = "Id is required.")]
@@ -54,6 +56,9 @@ namespace SharedClasses.DTOS.Appointment
 
         [MaxLength(500, ErrorMessage = "Notes cannot exceed 500 characters.")]
         public string? Notes { get; set; }
+
+        public string? Symptoms { get; set; }
+        public string? Diagnoses { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "ParentAppointmentId must be a positive number if provided.")]
         public int? ParentAppointmentId { get; set; }

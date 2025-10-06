@@ -44,6 +44,12 @@ namespace clinic_management_system_DataAccess
                                      reader.IsDBNull(reader.GetOrdinal("Notes"))
                                         ? (string?)null
                                         : reader.GetString(reader.GetOrdinal("Notes")),
+                                     reader.IsDBNull(reader.GetOrdinal("Symptoms"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Symptoms")),
+                                     reader.IsDBNull(reader.GetOrdinal("Diagnoses"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Diagnoses")),
                                      reader.IsDBNull(reader.GetOrdinal("ParentAppoinmentId"))
                                         ? (int?)null
                                         : reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
@@ -111,6 +117,12 @@ WHERE a.Id = @id;
                                      reader.IsDBNull(reader.GetOrdinal("Notes"))
                                         ? (string?)null
                                         : reader.GetString(reader.GetOrdinal("Notes")),
+                                     reader.IsDBNull(reader.GetOrdinal("Symptoms"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Symptoms")),
+                                     reader.IsDBNull(reader.GetOrdinal("Diagnoses"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Diagnoses")),
                                      reader.IsDBNull(reader.GetOrdinal("ParentAppoinmentId"))
                                         ? (int?)null
                                         : reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
@@ -238,7 +250,7 @@ select @@ROWCOUNT";
                     try
                     {
                         await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
+                        object? result = await command.ExecuteScalarAsync();
                         int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
                         if (rowAffected > 0)
                         {
@@ -417,6 +429,8 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                                         reader.GetDateTime(reader.GetOrdinal("Date")),
                                         (AppointmentStatus)reader.GetByte(reader.GetOrdinal("Status")),
                                         reader.GetString(reader.GetOrdinal("Notes")),
+                                        reader.GetString(reader.GetOrdinal("Symptoms")),
+                                        reader.GetString(reader.GetOrdinal("Diagnoses")),
                                         reader.GetInt32(reader.GetOrdinal("ParentAppoinmentId"))
                                     ));
                             }
