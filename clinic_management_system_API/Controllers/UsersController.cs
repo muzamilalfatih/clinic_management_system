@@ -51,7 +51,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserPublicDTO>> GetUserByID([FromQuery] string email)
+        public async Task<ActionResult<UserPublicDTO>> GetUser([FromQuery] string email)
         {
             Result<UserDTO> result = await _service.FindAsync(email);
             if (result.success)

@@ -21,7 +21,7 @@ namespace SharedClasses.DTOS.Doctors
 
         public int? SpecializationId { get; set; }
         public DayOfWeek? DayOfWeek { get; set; }
-        [Required(ErrorMessage = "Time is required.")]
+        //[Required(ErrorMessage = "Time is required.")]
         public TimeOnly? Time { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 20;
