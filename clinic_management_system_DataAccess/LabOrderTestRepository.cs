@@ -133,7 +133,7 @@ SELECT SCOPE_IDENTITY();
                 parameters.Add(new SqlParameter($"@NormalRange{i}", SqlDbType.NVarChar, 100) { Value = test.normalRange ?? (object)DBNull.Value });
                 parameters.Add(new SqlParameter($"@Unit{i}", SqlDbType.NVarChar, 50) { Value = test.unit ?? (object)DBNull.Value });
             }
-            queryBuilder.AppendLine(";select @@ROWCOUNT");
+            queryBuilder.AppendLine(";SELECT SCOPE_IDENTITY()");
             // One shared LabOrderId param
             parameters.Add(new SqlParameter("@LabOrderId", SqlDbType.Int) { Value = tests[0].labOrderId });
 

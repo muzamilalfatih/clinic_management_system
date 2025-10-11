@@ -29,20 +29,35 @@ namespace clinic_management_system_API.Controllers
             return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
-        [HttpPost(Name = "AddPrescriptionItem")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PrescriptionItemDTO>> AddPrescriptionItem(PrescriptionItemDTO prescriptionItemDTO)
+        public async Task<ActionResult<PrescriptionItemDTO>> GetAll([FromQuery] int prescriptionId)
         {
-            
-            Result<int> result = await _service.AddNewPrescriptionItemAsync(prescriptionItemDTO); 
+            Result<List<PrescriptionItemDTO>> result = await _service.GetAllAsync(prescriptionId);
             if (result.Success)
             {
-                return CreatedAtRoute("GetPrescriptionItemByID", new { id = result.Data }, prescriptionItemDTO);
+                return Ok(result.Data);
             }
-                return StatusCode(result.ErrorCode, result.Message);
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
+
+        //[HttpPost(Name = "AddPrescriptionItem")]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<ActionResult<PrescriptionItemDTO>> AddPrescriptionItem(PrescriptionItemDTO prescriptionItemDTO)
+        //{
+
+        //    Result<int> result = await _service.AddNewAsync(prescriptionItemDTO); 
+        //    if (result.Success)
+        //    {
+        //        return CreatedAtRoute("GetPrescriptionItemByID", new { id = result.Data }, prescriptionItemDTO);
+        //    }
+        //        return StatusCode(result.ErrorCode, result.Message);
+        //}
 
         [HttpPut("{id}", Name = "UpdatePrescriptionItem")]
         [ProducesResponseType(StatusCodes.Status200OK)]

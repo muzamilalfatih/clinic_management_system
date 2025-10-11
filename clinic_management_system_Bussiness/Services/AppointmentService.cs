@@ -159,5 +159,9 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.GetAllAppointment(filter);
         }
+        public async Task<Result<bool>> IsValidAsync(int id)
+        {
+            return await _repo.IsValidAsync(id);
+        }
     }
 }

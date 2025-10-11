@@ -55,8 +55,9 @@ namespace clinic_management_system_Bussiness
             if (!findPersonResult.Success)
                 return createFailResponse(findPersonResult.Message, result.ErrorCode);
 
-            LoggedUserDTO user = new LoggedUserDTO(result.Data.id, _personService.GetDualName(findPersonResult.Data),result.Data.email, result.Data.userName, result.Data.roles);
-            
+            LoggedUserDTO user = new LoggedUserDTO(result.Data.id, result.Data.personId,result.Data.email, result.Data.userName, result.Data.roles);
+
+
             return new Result<LoginResponseDTO>(true, "Login successfully!", new LoginResponseDTO(token, user));
         }
     }

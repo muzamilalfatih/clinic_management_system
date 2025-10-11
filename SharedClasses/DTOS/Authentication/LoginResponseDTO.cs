@@ -11,12 +11,12 @@ namespace SharedClasses.DTOS.Authentication
     {
         public LoginResponseDTO(string token, LoggedUserDTO user)
         {
-            this.token = token;
-            this.user = user;
+            Token = token;
+            User = user;
         }
 
-        public string token {  get; set; }
-        public LoggedUserDTO user { get; set; }
+        public string Token {  get; set; }
+        public LoggedUserDTO User { get; set; }
 
     }
 }

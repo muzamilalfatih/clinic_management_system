@@ -19,7 +19,12 @@ namespace clinic_management_system_Bussiness.Services
         public async Task<Result<LabTestParameterDTO>> FindAsync(int id)
         {
 
-            return await _repo.GetLabTestParameterByIDAsync(id);
+            return await _repo.GetByIDAsync(id);
+        }
+        public async Task<Result<List<LabTestParameterDTO>>> GetAllAsync(int testId)
+        {
+
+            return await _repo.GetAllAsync(testId);
         }
 
         public async Task<Result<int>> AddNewLabTestParameterAsync(AddNewLabTestParameterDTO addnew)

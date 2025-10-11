@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
 using clinic_management_system_Bussiness;
 using Microsoft.AspNetCore.Authorization;
+using SharedClasses.DTOS.Prescription;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/prescriptions")]
@@ -14,7 +15,7 @@ namespace clinic_management_system_API.Controllers
         {
             _service = service;
         }
-        [Authorize(Roles = "Admin,Doctor, Patient")]
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         [HttpGet("{id}", Name = "GetPrescriptionByID")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,12 +36,12 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = "Doctor")]
-        public async Task<ActionResult<PrescriptionDTO>> AddPrescription(PrescriptionDTO prescriptionDTO)
+        public async Task<ActionResult<PrescriptionDTO>> AddPrescription(AddNewPrescriptionRequestDTO repesut)
         {
-            Result<int> result = await _service.AddNewPrescriptionAsync(prescriptionDTO); 
+            Result<int> result = await _service.AddNewPrescriptionAsync(repesut); 
             if (result.Success)
             {
-                return CreatedAtRoute("GetPrescriptionByID", new { id = result.Data }, prescriptionDTO);
+                return CreatedAtRoute("GetPrescriptionByID", new { id = result.Data }, repesut);
             }
                 return StatusCode(result.ErrorCode, result.Message);
         }
@@ -50,11 +51,11 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PrescriptionDTO>> UpdatePrescription(int id, [FromBody] PrescriptionDTO prescriptionDTO)
+        public async Task<ActionResult<PrescriptionDTO>> UpdatePrescription(int id, [FromBody] UpdatePrescriptionDTO updateDTO)
         {
-            Result<int> result = await _service.UpdatePrescriptionAsync(prescriptionDTO);
+            Result<bool> result = await _service.UpdatePrescriptionAsync(updateDTO);
             if (result.Success)
-                return Ok(prescriptionDTO);
+                return Ok(updateDTO);
            return StatusCode(result.ErrorCode, result.Message);
         }
         [Authorize(Roles = "Admin,Doctor")]

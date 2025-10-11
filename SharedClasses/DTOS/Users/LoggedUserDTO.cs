@@ -9,18 +9,17 @@ namespace SharedClasses.DTOS.Users
 {
     public class LoggedUserDTO : BaseUserDTO
     {
-        public LoggedUserDTO(int id, string dualName, string email, string userName, List<UserRoleInfoDTO> roles)
+        public LoggedUserDTO(int id, int personId, string email, string userName, List<UserRoleInfoDTO> roles)
             :base(email, userName)
         {
-            this.id = id;
-            this.dualName = dualName;
-            this.roles = roles;
-            this.email = email;
+            Id = id;
+            PersonId = personId;
+            Roles = roles;
         }
 
-        public int id { get; set; }
-        public string dualName { get; set; }
-        public List<UserRoleInfoDTO> roles { get; set; }
+        public int Id { get; set; }
+        public int PersonId { get; set; }
+        public List<UserRoleInfoDTO> Roles { get; set; }
 
     }
 }

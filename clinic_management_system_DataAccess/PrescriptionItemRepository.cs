@@ -1,7 +1,10 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using SharedClasses;
+using SharedClasses.DTOS.LabOrderResults;
+using SharedClasses.DTOS.PescriptionItem;
 using System.Data;
+using System.Text;
 namespace clinic_management_system_DataAccess
 {
     public class PrescriptionItemRepository
@@ -12,7 +15,55 @@ namespace clinic_management_system_DataAccess
         {
             _connectionString = options.Value.DefaultConnection;
         }
-        public  async Task<Result<PrescriptionItemDTO>> GetPrescriptionItemInfoByIDAsync(int id)
+        private (string query, List<SqlParameter> parameters) _queryBuilder(List<AddNewPrescriptionItemDTO> items, int prescriptionId)
+        {
+            var queryBuilder = new StringBuilder();
+            queryBuilder.Append("INSERT INTO PrescriptionItems (PrescriptionId, MedicineName, Dosage, Frequency, Duration) VALUES ");
+
+            var parameters = new List<SqlParameter>();
+            for (int i = 0; i < items.Count; i++)
+            {
+                AddNewPrescriptionItemDTO item
+                    = items[i];
+
+                string valuesClause = $"(@PrescriptionId, @MedicineName{i}, @Dosage{i}, @Frequency{i}, @Duration{i})";
+
+                if (i > 0)
+                    queryBuilder.Append(", ");
+                queryBuilder.Append(valuesClause);
+
+                parameters.Add(new SqlParameter($"@MedicineName{i}", SqlDbType.NVarChar, 100) { Value = item.MedicineName });
+                parameters.Add(new SqlParameter($"@Dosage{i}", SqlDbType.NVarChar, 100) { Value = item.Dosage });
+                parameters.Add(new SqlParameter($"@Frequency{i}", SqlDbType.NVarChar, 100) { Value = item.Frequency });
+                parameters.Add(new SqlParameter($"@Duration{i}", SqlDbType.NVarChar, 100) { Value = item.Duration });
+            }
+            queryBuilder.AppendLine(";SELECT SCOPE_IDENTITY()");
+            // One shared LabOrderId param
+            parameters.Add(new SqlParameter("@PrescriptionId", SqlDbType.Int) { Value = prescriptionId });
+
+            return (queryBuilder.ToString(), parameters);
+        }
+        public async Task<Result<bool>> AddNewAsync(List<AddNewPrescriptionItemDTO> items, int prescriptionId, SqlConnection conn, SqlTransaction tran)
+        {
+
+            if (items == null || items.Count == 0)
+                return new Result<bool>(false, "No data provided!", false, 400);
+
+            (string query, List<SqlParameter> parameters) = _queryBuilder(items, prescriptionId);
+
+
+            using (SqlCommand command = new SqlCommand(query.ToString(), conn, tran))
+            {
+                command.Parameters.AddRange(parameters.ToArray());
+
+                object? result = await command.ExecuteScalarAsync();
+                bool success = result != DBNull.Value ? Convert.ToInt32(result) > 0 : false;
+
+                return new Result<bool>(true, "Items inserted successfully!", success);
+            }
+
+        }
+        public async Task<Result<PrescriptionItemDTO>> GetInfoByIDAsync(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -53,61 +104,52 @@ namespace clinic_management_system_DataAccess
                 }
             }
         }
-
-        public  async Task<Result<int>> AddNewPrescriptionItemAsync(PrescriptionItemDTO prescriptionItemDTO)
+        public async Task<Result<List<PrescriptionItemDTO>>> GetAllAsync(int prescriptionId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"
-INSERT INTO PrescriptionItems
-      (
-      PrescriptionId
-      ,MedicineName
-      ,Dosage
-      ,Frequency
-      ,Duration)
-VALUES
-      (
-      @PrescriptionId
-      ,@MedicineName
-      ,@Dosage
-      ,@Frequency
-      ,@Duration);
-SELECT SCOPE_IDENTITY();
-";
+                string query = @"SELECT * FROM PrescriptionItems WHERE PrescriptionId = @PrescriptionId";
+                List<PrescriptionItemDTO> items = new List<PrescriptionItemDTO>();
+
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@PrescriptionId", prescriptionItemDTO.prescriptionId);
-                    command.Parameters.AddWithValue("@MedicineName", prescriptionItemDTO.medicineName);
-                    command.Parameters.AddWithValue("@Dosage", prescriptionItemDTO.dosage);
-                    command.Parameters.AddWithValue("@Frequency", prescriptionItemDTO.frequency);
-                    command.Parameters.AddWithValue("@Duration", prescriptionItemDTO.duration);
-
+                    command.Parameters.AddWithValue("@PrescriptionId", prescriptionId);
 
                     try
                     {
                         await connection.OpenAsync();
-                        object result = await command.ExecuteScalarAsync();
-                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
-                        if (id > 0)
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            return new Result<int>(true, "PrescriptionItem added successfully.", id);
-                        }
-                        else
-                        {
-                            return new Result<int>(false, "Failed to add prescriptionItem.", -1);
+                            while (await reader.ReadAsync())
+                            {
+                                items.Add(new PrescriptionItemDTO
+                                 (
+                                     reader.GetInt32(reader.GetOrdinal("Id")),
+                                     reader.GetInt32(reader.GetOrdinal("PrescriptionId")),
+                                     reader.GetString(reader.GetOrdinal("MedicineName")),
+                                     reader.GetString(reader.GetOrdinal("Dosage")),
+                                     reader.GetString(reader.GetOrdinal("Frequency")),
+                                     reader.GetString(reader.GetOrdinal("Duration"))
+                                 ));
+                            }
+                            if (items.Count() > 0)
+                                return new Result<List<PrescriptionItemDTO>>(true, "Prescription Items found successfully", items);
+                            else
+                            {
+                                return new Result<List<PrescriptionItemDTO>>(false, "No prescription item found.", null, 404);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                        return new Result<List<PrescriptionItemDTO>>(false, "An unexpected error occurred on the server.", null, 500);
                     }
 
                 }
             }
         }
 
-        public  async Task<Result<int>> UpdatePrescriptionItemAsync(PrescriptionItemDTO prescriptionItemDTO)
+        public async Task<Result<int>> UpdateAsync(PrescriptionItemDTO prescriptionItemDTO)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -154,7 +196,7 @@ select @@ROWCOUNT";
             }
         }
 
-        public  async Task<Result<bool>> DeletePrescriptionItemAsync(int id)
+        public async Task<Result<bool>> DeleteAsync(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -185,7 +227,6 @@ select @@ROWCOUNT";
                 }
             }
         }
-
 
     }
 }

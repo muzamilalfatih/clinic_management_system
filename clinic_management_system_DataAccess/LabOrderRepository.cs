@@ -19,7 +19,7 @@ namespace clinic_management_system_DataAccess
                 string query = @"SELECT * FROM LabOrders WHERE Id = @id";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@Id", id);
 
                     try
                     {

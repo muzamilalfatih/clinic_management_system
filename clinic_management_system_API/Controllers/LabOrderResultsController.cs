@@ -1,37 +1,34 @@
-﻿using clinic_management_system_Bussiness;
-using clinic_management_system_Bussiness.Services;
+﻿using clinic_management_system_Bussiness.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
-using SharedClasses.DTOS.LabDevices;
-using SharedClasses.Enums;
+using SharedClasses.DTOS.LabOrderResults;
 
 namespace clinic_management_system_API.Controllers
 {
-    [Route("api/labDevicess")]
+    [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
-    public class LabDevicesController : ControllerBase
+    public class LabOrderResultsController : ControllerBase
     {
-        private readonly LabDeviceService _service;
+        private readonly LabOrderResultService _service;
 
-        public LabDevicesController(LabDeviceService service)
+        public LabOrderResultsController(LabOrderResultService service)
         {
             _service = service;
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
-        [HttpGet("{id}", Name = "GetLabDeviceByID")]
+        [HttpGet("{id}", Name = "GetLabOrderResultByID")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LabDeviceDTO>> GetLabDevicetByID(int id)
+        public async Task<ActionResult<LabOrderResultDTO>> GetLabOrderResulttByID(int id)
         {
-            Result<LabDeviceDTO> result = await _service.FindAsync(id);
+            Result<LabOrderResultDTO> result = await _service.FindAsync(id);
             if (result.Success)
             {
                 return Ok(result.Data);
@@ -40,25 +37,17 @@ namespace clinic_management_system_API.Controllers
         }
 
         //[Authorize(Roles = "Admin,SuperAdmin")]
-        [HttpGet("search")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LabDeviceDTO>> Search([FromQuery] int? id, [FromQuery] string? name)
+        public async Task<ActionResult<List<LabOrderResultDTO>>> Search([FromQuery] int labOrderTestId)
         {
-            if (id == null && string.IsNullOrWhiteSpace(name))
-                return BadRequest("You must provide either 'id' or 'name'.");
+            Result<List<LabOrderResultDTO>> result = await _service.GetAllAsync(labOrderTestId);
 
-            Result<LabDeviceDTO> result = null;
-
-            if (id.HasValue)
-                result = await _service.FindAsync((int)id);
-            else
-                result = await _service.FindAsync(name);
-           
             if (result.Success)
             {
                 return Ok(result.Data);
@@ -73,28 +62,28 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<CreateLabDeviceDTO>> AddLabDevice(CreateLabDeviceDTO createDTO)
+        public async Task<ActionResult<AddNewOrderResultDTO>> AddLabOrderResult(List<AddNewOrderResultDTO> results)
         {
 
-            Result<int> result = await _service.AddNewAsync(createDTO);
+            Result<bool> result = await _service.AddNewAsync(results);
             if (result.Success)
             {
-                return CreatedAtRoute("GetLabDeviceByID", new { id = result.Data }, createDTO);
+                return Ok(result.Message);
             }
-            return StatusCode(result.ErrorCode, new {Message =  result.Message});
+            return StatusCode(result.ErrorCode, result.Message);
         }
 
 
 
 
         [Authorize(Roles = "Admin,SuperAdmin")]
-        [HttpPut]
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<LabDeviceDTO>> UpdateLabDevice(int id, [FromBody] UpdateLabDeviceDTO UpdateDTO)
+        public async Task<ActionResult<LabOrderResultDTO>> UpdateLabOrderResult(int id, [FromBody] UpdateLabOrderResultDTO UpdateDTO)
         {
 
             Result<bool> result = await _service.UpdateAsync(UpdateDTO);
@@ -102,6 +91,5 @@ namespace clinic_management_system_API.Controllers
                 return Ok(UpdateDTO);
             return StatusCode(result.ErrorCode, result.Message);
         }
-
     }
 }

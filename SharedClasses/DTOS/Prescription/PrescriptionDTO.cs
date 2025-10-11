@@ -1,4 +1,4 @@
-namespace SharedClasses
+namespace SharedClasses.DTOS.Prescription
 {
     public class PrescriptionDTO
      {

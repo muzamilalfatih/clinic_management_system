@@ -37,6 +37,23 @@ namespace clinic_management_system_API.Controllers
             return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
         }
 
+        [Authorize(Roles = "Admin,SupderAdmin,LabTechnical,Receptionist")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<List<LabTestParameterDTO>>> GetAll([FromQuery] int labTestId)
+        {
+            Result<List<LabTestParameterDTO>> result = await _service.GetAllAsync(labTestId);
+            if (result.Success)
+            {
+                return Ok(result.Data);
+            }
+            return result.ErrorCode == 400 ? BadRequest(result.Message) : NotFound(result.Message);
+        }
         [HttpPost(Name = "AddLabTestParameter")]
         [Authorize(Roles = "Admin,SuperAdmin")]
         [ProducesResponseType(StatusCodes.Status201Created)]

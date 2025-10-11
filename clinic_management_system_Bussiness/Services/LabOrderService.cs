@@ -6,10 +6,13 @@ namespace clinic_management_system_Bussiness
     {
 
         private readonly LabOrderRepository _repo;
+        private readonly AppointmentRepository _appointmentRepo;
 
-        public LabOrderService(LabOrderRepository repo)
+
+        public LabOrderService(LabOrderRepository repo, AppointmentRepository appointmentRepo)
         {
             _repo = repo;
+            _appointmentRepo = appointmentRepo;
         }
 
         public async Task<Result<LabOrderDTO>> FindAsync(int id)
@@ -23,6 +26,14 @@ namespace clinic_management_system_Bussiness
 
         public async Task<Result<int>> _AddNewLabOrderAsync(LabOrderDTO labOrderDTO)
         {
+            if (labOrderDTO.appointmentId.HasValue)
+            {
+                Result<bool> checkResult = await _appointmentRepo.IsValidAsync((int)labOrderDTO.appointmentId);
+                if (!checkResult.Success)
+                    return new Result<int>(false, checkResult.Message, -1, checkResult.ErrorCode);
+                if (!checkResult.Data)
+                    return new Result<int>(false, "Can process with this appointemnt id!", -1, 400);
+            }
             return await _repo.AddNewLabOrderAsync(labOrderDTO);
         }
 

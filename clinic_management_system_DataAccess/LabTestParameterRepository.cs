@@ -21,14 +21,14 @@ namespace clinic_management_system_DataAccess
         {
             _connectionString = options.Value.DefaultConnection;
         }
-        public async Task<Result<LabTestParameterDTO>> GetLabTestParameterByIDAsync(int id)
+        public async Task<Result<LabTestParameterDTO>> GetByIDAsync(int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"select * from LabTestParameters ";
+                string query = @"select * from LabTestParameters where Id = @Id ";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@Id", id);
 
                     try
                     {
@@ -88,7 +88,7 @@ SELECT SCOPE_IDENTITY();
                     command.Parameters.AddWithValue("@LabTestId", addNew.LabTestId);
                     command.Parameters.AddWithValue("@Name", addNew.Name);
                     command.Parameters.AddWithValue("@NormalRange", addNew.NormalRange);
-                    command.Parameters.AddWithValue("@Unit", addNew.Unit ?? (object) DBNull.Value);
+                    command.Parameters.AddWithValue("@Unit", addNew.Unit ?? (object)DBNull.Value);
 
 
                     try
@@ -134,7 +134,7 @@ select @@ROWCOUNT";
                     command.Parameters.AddWithValue("@LabTestid", update.LabTestId);
                     command.Parameters.AddWithValue("@Name", update.Name);
                     command.Parameters.AddWithValue("@NormalRange", update.NormalRange);
-                    command.Parameters.AddWithValue("@Unit", update.Unit ?? (object) DBNull.Value);
+                    command.Parameters.AddWithValue("@Unit", update.Unit ?? (object)DBNull.Value);
 
 
                     try
@@ -217,11 +217,15 @@ select @@ROWCOUNT";
                                         reader.GetInt32(reader.GetOrdinal("LabTestId")),
                                         reader.GetString(reader.GetOrdinal("Name")),
                                         reader.GetString(reader.GetOrdinal("NormalRange")),
-                                        reader.GetString(reader.GetOrdinal("Unit"))
+                                         reader.IsDBNull(reader.GetOrdinal("Unit"))
+                                        ? (string?)null
+                                        : reader.GetString(reader.GetOrdinal("Unit"))
                                     ));
                             }
-
-                            return new Result<List<LabTestParameterDTO>>(true, "Appointments retrieved successfully", labTestParameters);
+                            if (labTestParameters.Count() > 0)
+                                return new Result<List<LabTestParameterDTO>>(true, "Parameters retrieved successfully", labTestParameters);
+                            else
+                                return new Result<List<LabTestParameterDTO>>(false, "No parameters found", null, 404);
                         }
                     }
                     catch (Exception ex)

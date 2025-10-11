@@ -81,6 +81,8 @@ namespace clinic_management_system_DataAccess
     CONCAT(pp.FirstName, ' ', pp.SecondName, ' ', pp.ThirdName, ' ', pp.LastName) AS Patient,
     CONCAT(pd.FirstName, ' ', pd.SecondName, ' ', pd.ThirdName, ' ', pd.LastName) AS Doctor,
     a.Fee,
+    a.Symptoms,
+    a.Diagnoses,
     a.Date,
     a.Status,
     a.Notes,
@@ -469,6 +471,34 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                     return new Result<bool>(false, "Failed to change appointment status.", false);
                 }
 
+            }
+        }
+        public async Task<Result<bool>> IsValidAsync(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"select * from Appointments
+                                where Id = @Id and status = 2";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    bool isFound;
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            isFound = reader.HasRows;
+                        }
+                        return new Result<bool>(true, "Check completed.", isFound);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                    }
+
+                }
             }
         }
     }
