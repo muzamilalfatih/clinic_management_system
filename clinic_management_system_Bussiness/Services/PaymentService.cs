@@ -13,13 +13,16 @@ namespace clinic_management_system_Bussiness
         private readonly string _connectionString;
         private readonly BillService _billService;
         private readonly AppointmentService _appointmentService;
+        private readonly LabOrderService _labOrdeService;
 
-        public PaymentService(PaymentRepository repo, IOptions<DatabaseSettings> options, BillService billService, AppointmentService appointmentService)
+        public PaymentService(PaymentRepository repo, IOptions<DatabaseSettings> options,
+            BillService billService, AppointmentService appointmentService, LabOrderService labOrdeService)
         {
             _repo = repo;
             _connectionString = options.Value.DefaultConnection;
             _billService = billService;
             _appointmentService = appointmentService;
+            _labOrdeService = labOrdeService;
         }
         public async Task<Result<PaymentInfoDTO>> FindAsync(int id)
         {
@@ -41,6 +44,7 @@ namespace clinic_management_system_Bussiness
                 return new Result<bool>(false, amountResult.Message, false, amountResult.ErrorCode);
             }
 
+
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 SqlTransaction? tran = null;
@@ -48,8 +52,6 @@ namespace clinic_management_system_Bussiness
                 {
                     await conn.OpenAsync();
                     tran = conn.BeginTransaction();
-
-                    
 
                     AddNewPaymentDTO addNew = new AddNewPaymentDTO(makePaymentDTO, amountResult.Data);
 
@@ -66,12 +68,31 @@ namespace clinic_management_system_Bussiness
                         return new Result<bool>(false, billStatusResult.Message, false, billStatusResult.ErrorCode);
                     }
 
-                    Result<bool> appointmentStatusResult = await _appointmentService.ChangeStatus(addNew.BillId, AppointmentStatus.Confirm, conn, tran);
-                    if (!appointmentStatusResult.Success)
+                    Result<bool> checkResult = await _appointmentService.IsExistAsync(makePaymentDTO.BillId, conn, tran);
+                    if (!checkResult.Success)
                     {
                         tran.Rollback();
-                        return new Result<bool>(false, appointmentStatusResult.Message, false, appointmentStatusResult.ErrorCode);
+                        return new Result<bool>(false, checkResult.Message, false, checkResult.ErrorCode);
                     }
+                    if (checkResult.Data)
+                    {
+                        Result<bool> appointmentStatusResult = await _appointmentService.ChangeStatus(addNew.BillId, AppointmentStatus.Confirm, conn, tran);
+                        if (!appointmentStatusResult.Success)
+                        {
+                            tran.Rollback();
+                            return new Result<bool>(false, appointmentStatusResult.Message, false, appointmentStatusResult.ErrorCode);
+                        }
+                    }
+                    else
+                    {
+                        Result<bool> labOrderResult = await _labOrdeService.ChangeStatus(makePaymentDTO.BillId, LabOrderStatus.Confirmed, conn, tran);
+                        if (!labOrderResult.Success)
+                        {
+                            tran.Rollback();
+                            return new Result<bool>(false, labOrderResult.Message, false, labOrderResult.ErrorCode);
+                        }
+                    }
+
                     tran.Commit();
                     return payResult;
                 }
@@ -81,11 +102,10 @@ namespace clinic_management_system_Bussiness
                     return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
                 }
             }
-            //return await _repo.AddNewPaymentAsync(paymentDTO);
         }
 
-      
 
-       
+
+
     }
 }

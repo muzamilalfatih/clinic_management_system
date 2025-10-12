@@ -20,15 +20,15 @@ namespace clinic_management_system_DataAccess
             _connectionString = options.Value.DefaultConnection;
         }
 
-        private (string query, List<SqlParameter> parameters) _queryBuilder(List<AddNewOrderResultDTO> NewResultDTOs)
+        private (string query, List<SqlParameter> parameters) _queryBuilder(AddNewLabOrderResultRequestDTO request)
         {
             var queryBuilder = new StringBuilder();
             queryBuilder.Append("INSERT INTO LabOrderNewResultDTOs (LabOrderTestId, LabTestParameterId, Result) VALUES ");
 
             var parameters = new List<SqlParameter>();
-            for (int i = 0; i < NewResultDTOs.Count; i++)
+            for (int i = 0; i < request.NewOrderResults.Count; i++)
             {
-                AddNewOrderResultDTO test = NewResultDTOs[i];
+                AddNewOrderResultDTO labTest = request.NewOrderResults[i];
 
                 string valuesClause = $"(@LabOrderTestId, @LabTestParameterId{i}, @Result{i})";
 
@@ -36,12 +36,12 @@ namespace clinic_management_system_DataAccess
                     queryBuilder.Append(", ");
                 queryBuilder.Append(valuesClause);
 
-                parameters.Add(new SqlParameter($"@LabTestParameterId{i}", SqlDbType.Int) { Value = test.LabTestParameterId });
-                parameters.Add(new SqlParameter($"@Result{i}", SqlDbType.NVarChar, 100) { Value = test.Result });
+                parameters.Add(new SqlParameter($"@LabTestParameterId{i}", SqlDbType.Int) { Value = labTest.LabTestParameterId });
+                parameters.Add(new SqlParameter($"@Result{i}", SqlDbType.NVarChar, 100) { Value = labTest.Result });
             }
             queryBuilder.AppendLine(";SELECT SCOPE_IDENTITY()");
             // One shared LabOrderId param
-            parameters.Add(new SqlParameter("@LabOrderTestId", SqlDbType.Int) { Value = NewResultDTOs[0].LabOrderTestId });
+            parameters.Add(new SqlParameter("@LabOrderTestId", SqlDbType.Int) { Value = request.NewOrderResults });
 
             return (queryBuilder.ToString(), parameters);
         }
@@ -126,31 +126,23 @@ namespace clinic_management_system_DataAccess
                 }
             }
         }
-
-        public async Task<Result<bool>> AddNewAsync(List<AddNewOrderResultDTO> NewResultDTOs)
+        public async Task<Result<bool>> AddNewAsync(AddNewLabOrderResultRequestDTO request, SqlConnection conn, SqlTransaction tran)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                if (NewResultDTOs == null || NewResultDTOs.Count == 0)
+                if (request == null || request.NewOrderResults.Count == 0)
                     return new Result<bool>(false, "No data provided!", false, 400);
 
-                (string query, List<SqlParameter> parameters) = _queryBuilder(NewResultDTOs);
+                (string query, List<SqlParameter> parameters) = _queryBuilder(request);
 
 
                 using (SqlCommand command = new SqlCommand(query.ToString()))
                 {
                     command.Parameters.AddRange(parameters.ToArray());
-                    try
-                    {
-                        object result = await command.ExecuteScalarAsync();
-                        bool success = result != DBNull.Value ? Convert.ToInt32(result) > 0 : false;
+                    object? result = await command.ExecuteScalarAsync();
+                    bool success = result != DBNull.Value ? Convert.ToInt32(result) > 0 : false;
 
-                        return new Result<bool>(true, "Lab order test results inserted successfully!", success);
-                    }
-                    catch (Exception ex)
-                    {
-                        return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
-                    }
+                    return new Result<bool>(true, "Lab order test results inserted successfully!", success);
                 }
             }
         }
@@ -195,6 +187,6 @@ select @@ROWCOUNT";
                 }
             }
         }
-
+       
     }
 }

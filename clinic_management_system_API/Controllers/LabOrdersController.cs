@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SharedClasses;
 using clinic_management_system_Bussiness;
+using SharedClasses.DTOS.LabOrder;
 namespace clinic_management_system_API.Controllers
 {
     [Route("api/labOrders")]
@@ -34,12 +35,15 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LabOrderDTO>> AddLabOrder(LabOrderDTO labOrderDTO)
+        public async Task<ActionResult<LabOrderDTO>> AddLabOrder(AddNewLabOrderRequestDTO request)
         {
-            Result<int> result = await _service._AddNewLabOrderAsync(labOrderDTO);  
+            if (request.NewlabOrder.PersonId == null && request.NewlabOrder.AppointmentId == null)
+                return BadRequest(new ResponseMessage("Please provide appointment id or person id."));
+            
+            Result<int> result = await _service.AddNewAsync(request);  
             if (result.Success)
             {
-                return CreatedAtRoute("GetLabOrderByID", new { id = result.Data }, labOrderDTO);
+                return CreatedAtRoute("GetLabOrderByID", new { id = result.Data }, request);
             }
                 return StatusCode(result.ErrorCode, result.Message);
         }
@@ -51,7 +55,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LabOrderDTO>> UpdateLabOrder(int id, [FromBody] LabOrderDTO labOrderDTO)
         {
-            Result<int> result = await _service._UpdateLabOrderAsync(labOrderDTO);
+            Result<int> result = await _service.UpdateAsync(labOrderDTO);
             if (result.Success)
                 return Ok(labOrderDTO);
            return StatusCode(result.ErrorCode, result.Message);
@@ -64,7 +68,7 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> DeleteLabOrder(int id)
         {
-            Result<bool> result = await _service.DeleteLabOrderAsync(id);
+            Result<bool> result = await _service.DeleteAsync(id);
             if (result.Success)
             {
                 return Ok($"LabOrder with ID {id} has been deleted.");

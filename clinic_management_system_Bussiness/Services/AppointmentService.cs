@@ -163,5 +163,9 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.IsValidAsync(id);
         }
+        public async Task<Result<bool>> IsExistAsync(int billId, SqlConnection conn, SqlTransaction tran)
+        {
+            return await _repo.IsExistAsync(billId, conn, tran);
+        }
     }
 }

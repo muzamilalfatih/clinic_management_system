@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using SharedClasses;
+using SharedClasses.DTOS.LabOrderTests;
 using SharedClasses.DTOS.LabTest;
 using System.Data;
 using System.Diagnostics.Metrics;
@@ -55,6 +56,46 @@ namespace clinic_management_system_DataAccess
             }
         }
 
+        public async Task<Result<List<AddNewLabOrderTestDTO>>> GetPricesAsync(List<int> labTestIds)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string idList = string.Join(",", labTestIds);
+
+                string query = @$"select Id, Price from LabTests
+where Id in ({idList})";
+                List<AddNewLabOrderTestDTO> orderTests = new List<AddNewLabOrderTestDTO>();
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                orderTests.Add(new AddNewLabOrderTestDTO
+                                 (
+                                     reader.GetInt32(reader.GetOrdinal("Id")),
+                                     reader.GetDecimal(reader.GetOrdinal("Price"))
+                                 ));
+                            }
+                            if (orderTests.Count() > 0)
+                                return new Result<List<AddNewLabOrderTestDTO>>(true, "prices retrieved successfully", orderTests);
+                            else
+                            {
+                                return new Result<List<AddNewLabOrderTestDTO>>(false, "prices retrieved not found.", null, 404);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<List<AddNewLabOrderTestDTO>>(false, "An unexpected error occurred on the server.", null, 500);
+                    }
+
+                }
+            }
+        }
         public async Task<Result<int>> AddNewLabTestAsync(LabTestDTO labTestDTO)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -177,10 +218,10 @@ select @@ROWCOUNT";
             }
         }
 
-        public async Task<Result<float>> GetTotalPrice(List<int> labTestIds)
+        public async Task<Result<decimal>> GetTotalPrice(List<int> labTestIds)
         {
             if (labTestIds == null || labTestIds.Count == 0)
-                return new Result<float>(false, "No test IDs provided.", 0, 400);
+                return new Result<decimal>(false, "No test IDs provided.", 0, 400);
 
             var queryBuilder = new StringBuilder();
             queryBuilder.Append("SELECT SUM(Price) AS TotalPrice FROM LabTests WHERE Id IN (");
@@ -207,13 +248,13 @@ select @@ROWCOUNT";
                     {
                         await connection.OpenAsync();
                         object result = await command.ExecuteScalarAsync();
-                        float sum = result != DBNull.Value ? Convert.ToSingle(result) : 0;
+                        decimal totalPrices = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
 
-                        return new Result<float>(true, "Success", sum);
+                        return new Result<decimal>(true, "Success", totalPrices);
                     }
                     catch (Exception ex)
                     {
-                        return new Result<float>(false, "An unexpected error occurred on the server.", -1, 500);
+                        return new Result<decimal>(false, "An unexpected error occurred on the server.", -1, 500);
                     }
 
                 }

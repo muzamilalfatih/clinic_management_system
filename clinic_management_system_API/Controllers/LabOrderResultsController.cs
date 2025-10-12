@@ -62,10 +62,10 @@ namespace clinic_management_system_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<AddNewOrderResultDTO>> AddLabOrderResult(List<AddNewOrderResultDTO> results)
+        public async Task<ActionResult<AddNewOrderResultDTO>> AddLabOrderResult(AddNewLabOrderResultRequestDTO requestDTO)
         {
 
-            Result<bool> result = await _service.AddNewAsync(results);
+            Result<bool> result = await _service.AddNewAsync(requestDTO);
             if (result.Success)
             {
                 return Ok(result.Message);

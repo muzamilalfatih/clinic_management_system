@@ -477,7 +477,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"select * from Appointments
+                string query = @"select Id from Appointments
                                 where Id = @Id and status = 2";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -499,6 +499,22 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY ;";
                     }
 
                 }
+            }
+        }
+        public async Task<Result<bool>> IsExistAsync(int billId, SqlConnection conn, SqlTransaction tran)
+        {
+            string query = @"select Id from Appointments
+                                where BillId = @BillId";
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@BillId", billId);
+                bool isFound;
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    isFound = reader.HasRows;
+                }
+                return new Result<bool>(true, "Check completed.", isFound);
+
             }
         }
     }

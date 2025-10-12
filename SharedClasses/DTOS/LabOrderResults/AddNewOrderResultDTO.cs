@@ -8,14 +8,12 @@ namespace SharedClasses.DTOS.LabOrderResults
 {
     public class AddNewOrderResultDTO
     {
-        public AddNewOrderResultDTO(int labOrderTestId, int labTestParameterId, string result)
+        public AddNewOrderResultDTO(int labTestParameterId, string result)
         {
-            LabOrderTestId = labOrderTestId;
             LabTestParameterId = labTestParameterId;
             Result = result;
         }
 
-        public int LabOrderTestId { get; set; }
         public int LabTestParameterId { get; set; }
         public string Result { get; set; }
     }

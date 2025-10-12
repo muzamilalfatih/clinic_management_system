@@ -1,6 +1,7 @@
 using SharedClasses;
 using clinic_management_system_DataAccess;
 using SharedClasses.DTOS.LabTest;
+using SharedClasses.DTOS.LabOrderTests;
 namespace clinic_management_system_Bussiness
 {
     public class LabTestService
@@ -39,9 +40,13 @@ namespace clinic_management_system_Bussiness
             }
             return await _repo.DeleteLabTestAsync(id);
         }
-        public async Task<Result<float>> GetTotalPrice(List<int> ids)
+        public async Task<Result<decimal>> GetTotalPriceAsync(List<int> ids)
         {
             return await _repo.GetTotalPrice(ids);
+        }
+        public async Task<Result<List<AddNewLabOrderTestDTO>>> GetPricesAsync(List<int> labTestIds)
+        {
+            return await _repo.GetPricesAsync(labTestIds);
         }
     }
 }
