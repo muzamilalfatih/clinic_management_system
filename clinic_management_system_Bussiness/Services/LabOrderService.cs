@@ -6,6 +6,7 @@ using SharedClasses.DTOS.LabOrder;
 using SharedClasses.DTOS.LabOrderTests;
 using SharedClasses.DTOS.LabTest;
 using SharedClasses.Enums;
+using System.Threading.Tasks.Sources;
 namespace clinic_management_system_Bussiness
 {
     public class LabOrderService
@@ -127,6 +128,10 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> ChangeStatus(int id, LabOrderStatus status, SqlConnection conn, SqlTransaction tran)
         {
             return await _repo.ChangeStatusAsync(id, status, conn, tran);
+        }
+        public async Task<Result<bool>> IsConfirmed(int id)
+        {
+            return await _repo.IsConfirmed(id);
         }
     }
 

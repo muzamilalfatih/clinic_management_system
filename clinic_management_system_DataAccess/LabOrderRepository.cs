@@ -280,6 +280,36 @@ where status = 1 and AppointmentId = @AppointmentId
                 }
 
         }
+        public async Task<Result<bool>> IsConfirmed(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"
+select 1 from LabOrders
+where Id = @Id and Status = @Status
+";
+                try
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Id", id);
+                        command.Parameters.AddWithValue("@Status", (int)LabOrderStatus.Pending);
+                        bool isFound;
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            isFound = reader.HasRows;
+                        }
+                        return new Result<bool>(true, "Check completed.", !isFound);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                }
+            }
+        }
         
     }
 }

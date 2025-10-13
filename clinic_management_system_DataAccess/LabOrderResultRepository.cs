@@ -23,7 +23,7 @@ namespace clinic_management_system_DataAccess
         private (string query, List<SqlParameter> parameters) _queryBuilder(AddNewLabOrderResultRequestDTO request)
         {
             var queryBuilder = new StringBuilder();
-            queryBuilder.Append("INSERT INTO LabOrderNewResultDTOs (LabOrderTestId, LabTestParameterId, Result) VALUES ");
+            queryBuilder.Append("INSERT INTO LabOrderResults (LabOrderTestId, LabTestParameterId, Result) VALUES ");
 
             var parameters = new List<SqlParameter>();
             for (int i = 0; i < request.NewOrderResults.Count; i++)
@@ -41,7 +41,7 @@ namespace clinic_management_system_DataAccess
             }
             queryBuilder.AppendLine(";SELECT SCOPE_IDENTITY()");
             // One shared LabOrderId param
-            parameters.Add(new SqlParameter("@LabOrderTestId", SqlDbType.Int) { Value = request.NewOrderResults });
+            parameters.Add(new SqlParameter("@LabOrderTestId", SqlDbType.Int) { Value = request.LabOderTestId });
 
             return (queryBuilder.ToString(), parameters);
         }
@@ -128,22 +128,19 @@ namespace clinic_management_system_DataAccess
         }
         public async Task<Result<bool>> AddNewAsync(AddNewLabOrderResultRequestDTO request, SqlConnection conn, SqlTransaction tran)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            if (request == null || request.NewOrderResults.Count == 0)
+                return new Result<bool>(false, "No data provided!", false, 400);
+
+            (string query, List<SqlParameter> parameters) = _queryBuilder(request);
+
+
+            using (SqlCommand command = new SqlCommand(query.ToString(), conn, tran))
             {
-                if (request == null || request.NewOrderResults.Count == 0)
-                    return new Result<bool>(false, "No data provided!", false, 400);
+                command.Parameters.AddRange(parameters.ToArray());
+                object? result = await command.ExecuteScalarAsync();
+                bool success = result != DBNull.Value ? Convert.ToInt32(result) > 0 : false;
 
-                (string query, List<SqlParameter> parameters) = _queryBuilder(request);
-
-
-                using (SqlCommand command = new SqlCommand(query.ToString()))
-                {
-                    command.Parameters.AddRange(parameters.ToArray());
-                    object? result = await command.ExecuteScalarAsync();
-                    bool success = result != DBNull.Value ? Convert.ToInt32(result) > 0 : false;
-
-                    return new Result<bool>(true, "Lab order test results inserted successfully!", success);
-                }
+                return new Result<bool>(true, "Lab order test results inserted successfully!", success);
             }
         }
         public async Task<Result<bool>> UpdateAsync(UpdateLabOrderResultDTO UpdateDTO)

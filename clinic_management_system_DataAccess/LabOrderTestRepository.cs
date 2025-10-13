@@ -281,5 +281,37 @@ where labOrderId = @LabOrderId and  Status = @Status
                 }
             }
         }
+        public async Task<Result<LabOrderTestStatus>> GetStatusAsync(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT Status FROM LabOrderTests
+WHERE Id = @Id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object? result = await command.ExecuteScalarAsync();
+                        int statusCode = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        if (statusCode > 0)
+                        {
+                            return new Result<LabOrderTestStatus>(true, "Lab order  id retrieved successfully.",(LabOrderTestStatus) statusCode);
+                        }
+                        else
+                        {
+                            return new Result<LabOrderTestStatus>(false, "Lab order test not found.", default, 404);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<LabOrderTestStatus>(false, "An unexpected error occurred on the server.", default, 500);
+                    }
+
+                }
+            }
+        }
     }
 }

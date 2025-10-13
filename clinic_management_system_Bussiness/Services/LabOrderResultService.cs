@@ -42,15 +42,31 @@ namespace clinic_management_system_Bussiness.Services
 
         public async Task<Result<bool>> AddNewAsync(AddNewLabOrderResultRequestDTO requestDTO)
         {
-
             Result<int> LabOrderIdResult = await _labOrderTestService.GetLabOrderId(requestDTO.LabOderTestId);
             if (!LabOrderIdResult.Success)
                 return new Result<bool>(false, LabOrderIdResult.Message, false, LabOrderIdResult.ErrorCode);
+
+            Result<bool> isOrderPaidResult = await _labOrderService.IsConfirmed(LabOrderIdResult.Data);
+            if (!isOrderPaidResult.Success)
+                return new Result<bool>(false, isOrderPaidResult.Message, false, isOrderPaidResult.ErrorCode);
+            if (!isOrderPaidResult.Data)
+                return new Result<bool>(false, "This order is not paid!", false, 400);
+
+            Result<LabOrderTestStatus> getLabTestStatusResult = await _labOrderTestService.GetStatusAsync(requestDTO.LabOderTestId);
+            if (!getLabTestStatusResult.Success)
+                return new Result<bool>(false, getLabTestStatusResult.Message, false, getLabTestStatusResult.ErrorCode);
+            if (getLabTestStatusResult.Data == LabOrderTestStatus.Completed)
+                return new Result<bool>(false, "This test has a result already!", false, 400);
+
+
+            
             Result<bool> isFirstResult = await _labOrderTestService.IsFirstTestAsync(LabOrderIdResult.Data);
-            if (!isFirstResult.Data)
+            if (!isFirstResult.Success)
             {
                 return new Result<bool>(false, isFirstResult.Message, false, isFirstResult.ErrorCode);
             }
+            
+            
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {

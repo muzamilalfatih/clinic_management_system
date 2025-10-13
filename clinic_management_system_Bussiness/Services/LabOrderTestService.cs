@@ -62,5 +62,9 @@ namespace clinic_management_system_Bussiness
         {
             return await _repo.IsFirstTestAsync(labOrderId);
         }
+        public async Task<Result<LabOrderTestStatus>> GetStatusAsync(int id)
+        {
+            return await _repo.GetStatusAsync(id);
+        }
     }
 }
