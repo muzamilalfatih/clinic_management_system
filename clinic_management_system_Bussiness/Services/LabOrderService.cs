@@ -120,10 +120,15 @@ namespace clinic_management_system_Bussiness
             }
             return await _repo.DeleteLabOrderAsync(id);
         }
-        public async Task<Result<bool>> ChangeStatus(int billId, LabOrderStatus status, SqlConnection conn, SqlTransaction tran)
+        public async Task<Result<bool>> ConfirmAsync(int billId, SqlConnection conn, SqlTransaction tran)
         {
-            return await _repo.ChangeStatus(billId, status, conn, tran);
+            return await _repo.ConfirmAsync(billId, conn, tran);
         }
-
+        public async Task<Result<bool>> ChangeStatus(int id, LabOrderStatus status, SqlConnection conn, SqlTransaction tran)
+        {
+            return await _repo.ChangeStatusAsync(id, status, conn, tran);
+        }
     }
+
+
 }

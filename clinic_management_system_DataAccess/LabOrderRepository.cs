@@ -184,7 +184,7 @@ select @@ROWCOUNT";
                 }
             }
         }
-        public async Task<Result<bool>> ChangeStatus(int billId, LabOrderStatus status, SqlConnection conn, SqlTransaction tran)
+        public async Task<Result<bool>> ConfirmAsync(int billId,SqlConnection conn, SqlTransaction tran)
         {
             string query = @"UPDATE LabOrders
                                     SET 
@@ -193,8 +193,33 @@ select @@ROWCOUNT";
                                     select @@ROWCOUNT";
             using (SqlCommand command = new SqlCommand(query, conn, tran))
             {
-                command.Parameters.AddWithValue("@Status", (int)status);
+                command.Parameters.AddWithValue("@Status", (int)LabOrderStatus.Confirmed);
                 command.Parameters.AddWithValue("@BillId", billId);
+
+                object? result = await command.ExecuteScalarAsync();
+                int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                if (rowAffected > 0)
+                {
+                    return new Result<bool>(true, "Appointment status changed.", true);
+                }
+                else
+                {
+                    return new Result<bool>(false, "Failed to change appointment status.", false);
+                }
+
+            }
+        }
+        public async Task<Result<bool>> ChangeStatusAsync(int id, LabOrderStatus status, SqlConnection conn, SqlTransaction tran)
+        {
+            string query = @"UPDATE LabOrders
+                                    SET 
+                                        Status = @Status
+                                    WHERE Id = @Id
+                                    select @@ROWCOUNT";
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@Status", (int)status);
+                command.Parameters.AddWithValue("@Id", id);
 
                 object? result = await command.ExecuteScalarAsync();
                 int rowAffected = result != DBNull.Value ? Convert.ToInt32(result) : 0;
@@ -255,6 +280,6 @@ where status = 1 and AppointmentId = @AppointmentId
                 }
 
         }
-
+        
     }
 }

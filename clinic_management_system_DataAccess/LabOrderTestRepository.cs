@@ -201,6 +201,85 @@ namespace clinic_management_system_DataAccess
             }
         }
 
+        public async Task<Result<bool>> HadPenddingTestAsync(int labOrderId, SqlConnection conn, SqlTransaction tran)
+        {
+            string query = @"
+select top 1 Id from LabOrderTests
+where labOrderId = @LabOrderId and status = 1";
 
+            using (SqlCommand command = new SqlCommand(query, conn, tran))
+            {
+                command.Parameters.AddWithValue("@LabOrderId", labOrderId);
+                bool isFound;
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    isFound = reader.HasRows;
+                }
+                return new Result<bool>(true, "Check completed.", isFound);
+
+            }
+
+        }
+        public async Task<Result<int>> GetLabOrderIdAsync(int Id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT LabOrderId FROM LabOrderTests
+WHERE Id = @Id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", Id);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        object? result = await command.ExecuteScalarAsync();
+                        int id = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                        if (id > 0)
+                        {
+                            return new Result<int>(true, "Lab order  id retrieved successfully.", id);
+                        }
+                        else
+                        {
+                            return new Result<int>(false, "Lab order test not found.", -1, 404);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        return new Result<int>(false, "An unexpected error occurred on the server.", -1, 500);
+                    }
+
+                }
+            }
+        }
+        public async Task<Result<bool>> IsFirstTestAsync(int labOrderId)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = @"select top 1 1 from LabOrderTests
+where labOrderId = @LabOrderId and  Status = @Status
+";
+                try
+                {
+                    await connection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@LabOrderId", labOrderId);
+                        command.Parameters.AddWithValue("@Status", (int) LabOrderTestStatus.Completed);
+                        bool isFound;
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            isFound = reader.HasRows;
+                        }
+                        return new Result<bool>(true, "Check completed.", !isFound);
+
+                    }
+                }
+                catch(Exception ex)
+                {
+                    return new Result<bool>(false, "An unexpected error occurred on the server.", false, 500);
+                }
+            }
+        }
     }
 }

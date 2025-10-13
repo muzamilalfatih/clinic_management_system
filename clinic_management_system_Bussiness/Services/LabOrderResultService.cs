@@ -1,9 +1,12 @@
-﻿using clinic_management_system_DataAccess;
+﻿using Azure.Core;
+using clinic_management_system_DataAccess;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using SharedClasses;
 using SharedClasses.DTOS.LabOrderResults;
+using SharedClasses.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,14 +19,16 @@ namespace clinic_management_system_Bussiness.Services
     {
         private readonly LabOrderResultRepository _repo;
         private readonly string _connectionString;
-        private readonly LabOrderTestService _labOrderTestSevice;
+        private readonly LabOrderTestService _labOrderTestService;
+        private readonly LabOrderService _labOrderService;
 
         public LabOrderResultService(LabOrderResultRepository repo, IOptions<DatabaseSettings> options
-            ,LabOrderTestService labOrderTestService)
+            ,LabOrderTestService labOrderTestService, LabOrderService labOrderService)
         {
             _repo = repo;
             _connectionString = options.Value.DefaultConnection;
-            _labOrderTestSevice = labOrderTestService;
+            _labOrderTestService = labOrderTestService;
+            _labOrderService = labOrderService;
         }
         public async Task<Result<LabOrderResultDTO>> FindAsync(int id)
         {
@@ -37,6 +42,16 @@ namespace clinic_management_system_Bussiness.Services
 
         public async Task<Result<bool>> AddNewAsync(AddNewLabOrderResultRequestDTO requestDTO)
         {
+
+            Result<int> LabOrderIdResult = await _labOrderTestService.GetLabOrderId(requestDTO.LabOderTestId);
+            if (!LabOrderIdResult.Success)
+                return new Result<bool>(false, LabOrderIdResult.Message, false, LabOrderIdResult.ErrorCode);
+            Result<bool> isFirstResult = await _labOrderTestService.IsFirstTestAsync(LabOrderIdResult.Data);
+            if (!isFirstResult.Data)
+            {
+                return new Result<bool>(false, isFirstResult.Message, false, isFirstResult.ErrorCode);
+            }
+
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 SqlTransaction? tran = null;
@@ -45,6 +60,16 @@ namespace clinic_management_system_Bussiness.Services
                     await conn.OpenAsync();
                     tran = conn.BeginTransaction();
 
+                    if (isFirstResult.Data)
+                    {
+                        Result<bool> inProgressLabResult = await _labOrderService.ChangeStatus(LabOrderIdResult.Data, 
+                            LabOrderStatus.InProgress, conn, tran);
+                        if (!inProgressLabResult.Success)
+                        {
+                            tran.Rollback();
+                            return new Result<bool>(false, inProgressLabResult.Message, false, inProgressLabResult.ErrorCode);
+                        }
+                    }
                     Result<bool> orderResult = await _repo.AddNewAsync(requestDTO, conn, tran);
                     if (!orderResult.Success)
                     {
@@ -52,13 +77,28 @@ namespace clinic_management_system_Bussiness.Services
                         return orderResult;
                     }
 
-                    Result<bool> completeOderTestResut = await _labOrderTestSevice.Complete(requestDTO.LabOderTestId, conn, tran);
+                    Result<bool> completeOderTestResut = await _labOrderTestService.Complete(requestDTO.LabOderTestId, conn, tran);
                     if (!completeOderTestResut.Success)
                     {
                         tran?.Rollback();
                         return new Result<bool>(false, completeOderTestResut.Message, false, completeOderTestResut.ErrorCode);
                     }
 
+                    Result<bool> hasPenddingTestsResult = await _labOrderTestService.HasPeddingTestAsync(LabOrderIdResult.Data, conn, tran);
+                    if (!hasPenddingTestsResult.Success)
+                    {
+                        tran.Rollback();
+                        return new Result<bool>(false, hasPenddingTestsResult.Message, false, hasPenddingTestsResult.ErrorCode);
+                    }
+                    if (!hasPenddingTestsResult.Data)
+                    {
+                        Result<bool> completeLabOrderResult = await _labOrderService.ChangeStatus(LabOrderIdResult.Data, LabOrderStatus.Completed, conn, tran);
+                        if (!completeLabOrderResult.Success)
+                        {
+                            tran.Rollback();
+                            return new Result<bool>(false, completeLabOrderResult.Message, false, completeLabOrderResult.ErrorCode);
+                        }
+                    }
                     tran.Commit();
                     return orderResult;
 

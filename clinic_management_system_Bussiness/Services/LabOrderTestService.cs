@@ -3,6 +3,7 @@ using clinic_management_system_DataAccess;
 using System.Net.NetworkInformation;
 using SharedClasses.DTOS.LabOrderTests;
 using Microsoft.Data.SqlClient;
+using System.Threading.Tasks.Sources;
 namespace clinic_management_system_Bussiness
 {
     public class LabOrderTestService
@@ -48,6 +49,18 @@ namespace clinic_management_system_Bussiness
         public async Task<Result<bool>> Complete(int Id, SqlConnection conn, SqlTransaction tran)
         {
             return await _repo.Complete(Id, conn, tran);
+        }
+        public async Task<Result<bool>> HasPeddingTestAsync(int labOrderId, SqlConnection conn, SqlTransaction tran)
+        {
+            return await _repo.HadPenddingTestAsync(labOrderId, conn, tran);
+        }
+        public async Task<Result<int>> GetLabOrderId(int Id)
+        {
+            return await _repo.GetLabOrderIdAsync(Id);
+        }
+        public async Task<Result<bool>> IsFirstTestAsync(int labOrderId)
+        {
+            return await _repo.IsFirstTestAsync(labOrderId);
         }
     }
 }
